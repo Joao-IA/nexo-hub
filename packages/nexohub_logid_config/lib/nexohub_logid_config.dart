@@ -12,3 +12,5 @@ export 'src/libconfig/writer.dart' show writeLibconfig;
 export 'src/model/decode.dart';
 export 'src/model/encode.dart';
 export 'src/model/model.dart';
+export 'src/validation/capabilities.dart';
+export 'src/validation/validate.dart';

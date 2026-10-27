@@ -8,6 +8,12 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ## [Não lançado]
 
 ### Adicionado
+- `nexohub_logid_config` — validador semântico: ~50 regras para o que o logid 0.3.5 aceita mas quebra,
+  com gravidade (`error` bloqueia aplicar), caminho e parâmetros para a UI; `effectiveDpi` reproduz o
+  arredondamento do logid. Sua config original: zero achados.
+- Spike S6 no hardware: confirmado que `dpi: []`/`dpi: 1600L` fazem o logid abandonar o mouse,
+  `interval: 0` derruba o logid (SIGFPE), `CycleDPI` não funciona e eixo inválido gera comportamento
+  indefinido.
 - `nexohub_logid_config` — modelo tipado do logid 0.3.5 (`LogidConfig`, perfis, ações, gestos) com
   decodificação fiel às regras do logid, avisos (`DecodeIssue`) do que ele ignora/descarta e escrita
   canônica; sua config original é reescrita sem nenhum aviso (teste golden).
@@ -17,7 +23,7 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   (o mesmo do logid), com árvore tipada que não permite estruturas inválidas.
 - `tool/libconfig_check`: parser de referência em C++ usando o libconfig real, para testes
   diferenciais.
-- 75 testes (unitários, ida e volta, golden e diferenciais) + fuzz configurável; 0 divergências em 400 mil
+- 97 testes (unitários, ida e volta, golden, diferenciais e validação) + fuzz configurável; 0 divergências em 400 mil
   entradas geradas.
 - CI compila o parser de referência e exige que os testes diferenciais rodem.
 - Fundação do repositório: licença GPL-3.0, READMEs (EN/PT-BR), `.gitignore`, `.editorconfig`,
