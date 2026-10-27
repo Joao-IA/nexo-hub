@@ -55,8 +55,19 @@ jobs:
         if: hashFiles('pubspec.yaml') != ''
         run: dart analyze --fatal-infos
 
+      # Reference parser for the differential tests: the real libconfig++
+      # (same 1.7.3 release logid links to on Ubuntu 24.04 and 26.04).
+      - name: Build reference libconfig parser
+        if: hashFiles('tool/libconfig_check/main.cpp') != ''
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libconfig++-dev
+          tool/libconfig_check/build.sh
+
       - name: Test (Dart packages)
         if: hashFiles('packages/*/test/**/*_test.dart') != ''
+        env:
+          NEXO_REQUIRE_LIBCONFIG_CHECK: "1"
         run: |
           for pkg in packages/*/; do
             if [ -d "$pkg/test" ]; then

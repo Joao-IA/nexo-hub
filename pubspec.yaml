@@ -8,7 +8,8 @@ publish_to: none
 environment:
   sdk: ^3.13.0
 
-workspace: []
+workspace:
+  - packages/nexohub_logid_config
 
 dev_dependencies:
   lints: ^6.1.0
