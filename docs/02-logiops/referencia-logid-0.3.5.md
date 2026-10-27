@@ -100,7 +100,7 @@ Toda ação é um grupo com `type`. Os tipos e campos:
 | `"ToggleHiresScroll"` | — | Alterna rolagem de alta resolução. |
 | `"CycleDPI"` | `dpis`: lista de inteiros; `sensor` opcional | Avança para o próximo DPI da lista. |
 | `"ChangeDPI"` | `inc`: inteiro (pode ser negativo); `sensor` opcional | Soma `inc` ao DPI atual. |
-| `"ChangeHost"` | `host`: inteiro **1‑based** ou `"next"`/`"prev"`/`"previous"` (sem diferenciar maiúsculas) | Easy-Switch. Executa **ao soltar** o botão. Número vira `host - 1` e é tomado módulo o total de canais ([ChangeHostAction.cpp L84‑L107][changehost]). ⚠ Provável bug: `"prev"` estando no canal 1 calcula `-1 % N` (negativo em C++) — a confirmar no spike S5. |
+| `"ChangeHost"` | `host`: inteiro **1‑based** ou `"next"`/`"prev"`/`"previous"` (sem diferenciar maiúsculas) | Easy-Switch. Executa **ao soltar** o botão. Número vira `host - 1` e é tomado módulo o total de canais ([ChangeHostAction.cpp L84‑L107][changehost]). ⚠ Bug: `"prev"` no canal 1 calcula `-1` → `255` em `uint8_t` → `setHost` lança `InvalidArgument` e nada acontece. ⚠ No MX Master 3S via Bluetooth a ação exige **vários apertos** (spike S5) — tratada como experimental. |
 | `"ChangeProfile"` | `profile`: string | Troca o perfil ativo. ⚠ Nome inexistente cria perfil **vazio** (ver seção 10). |
 | `"Gestures"` | `gestures`: lista de `{ direction; mode; ... }` | Só em botões com suporte a gestos. Ver seção 6. |
 
@@ -130,8 +130,9 @@ maiúsculas; `"None"` = apertar e soltar sem mover) — e `mode`:
 - Forma booleana `hiresscroll: true;` ⇒ altera **só** o modo hires; `invert`/`target` não são tocados.
 - Forma de grupo: `hires`, `invert`, `target` (bool, cada um só é aplicado se presente) e `up`/`down`
   (gestos).
-- `target: true` desvia os eventos da roda para o logid. Pelo código, `up`/`down` só recebem eventos com
-  `target: true` — a confirmar no spike S5.
+- `target: true` desvia os eventos da roda para o logid. **Confirmado no spike S5:** `up`/`down` só
+  disparam com `target: true`; com `target: false` a roda rola normalmente e os gestos são ignorados.
+  Com `target: true` e uma ação que não seja de rolagem, a roda **deixa de rolar**.
 
 ## 8. `thumbwheel` ([schema.h L276‑L293][schema])
 
@@ -162,7 +163,9 @@ maiúsculas; `"None"` = apertar e soltar sem mover) — e `mode`:
 | `default_profile` inexistente | Perfil vazio ativado no boot | Validador |
 | Perfil ativo após restart/reconexão | Volta a `default_profile` | Agent reaplica o perfil da regra atual |
 | `OnInterval` sem `interval` | Gesto nunca dispara | Validador exige |
-| `prev` no canal 1 (ChangeHost) | Provavelmente não faz nada | A confirmar (S5); UI avisa |
+| `prev` no canal 1 (ChangeHost) | Não faz nada (erro `InvalidArgument` interno) | UI avisa; ação marcada como experimental |
+| ChangeHost via Bluetooth exige vários apertos | Easy-Switch pelo botão parece "não funcionar" | Em investigação (spike S5); UI recomenda o botão físico |
+| `up`/`down` do scroll sem `target: true` | Gestos nunca disparam | Validador avisa/exige `target: true` |
 | Gestos em botão sem suporte | Ação ignorada | Validador usa capacidades reais (`GestureSupport`) |
 
 ## 11. Exemplo completo comentado (a sua configuração original)

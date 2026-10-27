@@ -22,3 +22,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - Spikes da Fase 0: configs de perfis (S1), extensão de foco do GNOME 50 (S4) e configs de
   Easy-Switch/scroll (S5), com procedimentos em `docs/spikes.md`.
 - Workflow de CI: links da documentação, versão do Flutter, format, analyze e testes Dart.
+- Spike S3 (`spikes/s3/`): app Flutter mínimo de captura de teclas; mapeamento tecla física → evdev
+  confirmado em 22/22 teclas (incl. Super, AltGr e ABNT2).
+- Resultados dos spikes S1, S2 e S5 no hardware (MX Master 3S): perfis e troca ao vivo confirmados,
+  armadilha do `SetProfile` com nome inexistente confirmada, CIDs/DPI/torque reais, tempo de
+  reinício do logid (~0,4 s), semântica de `target` no scroll e problema de confiabilidade do
+  `ChangeHost` via Bluetooth (em aberto).
+
+### Corrigido
+- `docs/spikes.md`: comandos do S2 usavam marcadores `<...>`, que o zsh interpreta como
+  redirecionamento; agora usam a variável `$CAMINHO`.

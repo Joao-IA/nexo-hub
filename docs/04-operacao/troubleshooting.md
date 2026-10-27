@@ -30,6 +30,17 @@ Formato de cada entrada: **Sintoma → Causa provável → Como confirmar → So
 - **Confirmar:** aparece logo após o boot e depois surge `Device found`.
 - **Solução:** inofensivo se a regra udev de reconexão existir ([recuperacao.md §4](recuperacao.md)).
 
+### Botão configurado com Easy-Switch (`ChangeHost`) precisa de vários apertos
+- **Causa provável:** em investigação (spike S5). Hipótese: o desvio temporário do botão para o logid
+  se perde quando o mouse economiza energia; os primeiros apertos chegam ao sistema como botão comum.
+- **Confirmar:** `sudo libinput debug-events` e `logid -v` ao mesmo tempo, apertando o botão.
+- **Solução:** usar o botão Easy-Switch físico (embaixo do mouse). No canal 1, `"prev"` nunca funciona
+  (bug do logid 0.3.5 — ver [referência §5](../02-logiops/referencia-logid-0.3.5.md#5-ações-schemah-l60l240)).
+
+### Roda muda volume (ou outra ação) em vez de rolar
+- **Causa:** `hiresscroll` com `target: true` e gestos `up`/`down` configurados.
+- **Solução:** usar `target: false` (ou remover `up`/`down`) para a roda voltar a rolar.
+
 ### Configuração some ao voltar de outro computador (Easy-Switch)
 - **Causa:** ao reconectar, o logid reaplica o `default_profile`.
 - **Confirmar:** `journalctl -u logid` mostra `Device found` na volta.

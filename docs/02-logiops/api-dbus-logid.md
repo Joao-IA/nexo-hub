@@ -1,7 +1,7 @@
 # API D-Bus do logid (v0.3.5)
 
-**Status:** vigente para a parte lida no código; caminhos de objeto **a confirmar no spike S2**
-(ver [spikes.md](../spikes.md)).
+**Status:** vigente. Caminhos, assinaturas e comportamento de `SetProfile` confirmados no spike S2
+(27/10/2026) — ver [spikes.md](../spikes.md#s2--27102026-).
 
 O logid publica o serviço `pizza.pixl.LogiOps` no **barramento de sistema**. Desde a v0.3.5 (correção da
 CVE-2024-45752) a política em `/usr/share/dbus-1/system.d/pizza.pixl.LogiOps.conf` só permite que
@@ -24,18 +24,22 @@ Fonte: `DeviceManager.cpp`, `Device.cpp` e `features/*.cpp` no commit
 | | sinal `StatusChanged` | `active` (bool) | Dormiu/acordou (inclui Easy-Switch) |
 | `pizza.pixl.LogiOps.Buttons` | `Enumerate` | → `buttons` | Listar botões |
 | `pizza.pixl.LogiOps.Button` | propriedades `ControlID`, `TaskID`, `Remappable`, `GestureSupport` | — | Capacidades reais de cada botão |
-| `pizza.pixl.LogiOps.DPI` | `GetSensors`, `GetDPIs(sensor)` → `dpis, dpiStep, range`, `GetDPI(sensor)`, `SetDPI(dpi, sensor)` | | Faixa e passo de DPI |
-| `pizza.pixl.LogiOps.SmartShift` | `GetConfig` → `active, threshold, torque`; propriedade `TorqueSupport` | | Saber se `torque` é suportado |
+| `pizza.pixl.LogiOps.DPI` | `GetSensors` → `y`; `GetDPIs(y sensor)` → `aqqb` (`dpis`, `dpiStep`, `range`); `GetDPI(y)` → `q`; `SetDPI(q dpi, y sensor)` | | Faixa e passo de DPI. Com `range=true`, `dpis` = `[mín, máx]` (ex.: `2 200 8000 50 true`) |
+| `pizza.pixl.LogiOps.SmartShift` | `GetConfig` → `yyy` (`active`, `threshold`, `torque`); propriedade `TorqueSupport` (`b`) | | `active` vem **da config**: 0 = ausente, 1 = off, 2 = on. Saber se `torque` é suportado |
 | `pizza.pixl.LogiOps.HiresScroll` | `GetConfig` → `hires, invert, target` | | Diagnóstico |
 | `pizza.pixl.LogiOps.ThumbWheel` | `GetConfig` → `divert, invert` | | Detectar presença de roda lateral |
 | `pizza.pixl.LogiOps.Config` | `Save` | → | **Não usado** (ver abaixo) |
 
-Árvore de objetos esperada (pelo código; confirmar no S2):
+Árvore de objetos (confirmada no S2):
 
 ```
-/…/devices/<apelido numérico>            Device, DPI, SmartShift, HiresScroll, ThumbWheel…
-/…/devices/<apelido>/buttons/<índice>    Button
+/pizza/pixl/logiops                                   Devices, Receivers, Config
+/pizza/pixl/logiops/devices/<apelido>                 Device, Buttons, DPI, SmartShift, HiresScroll, ThumbWheel
+/pizza/pixl/logiops/devices/<apelido>/buttons/<n>     Button (ControlID, TaskID, Remappable, GestureSupport)
 ```
+
+O `<apelido>` é um número atribuído pelo logid na ordem de detecção (não é fixo por aparelho): o
+Nexo identifica o dispositivo pelas propriedades `Name`/`ProductID`, nunca pelo número.
 
 ### Por que não usamos `SetProfile` diretamente sem checagem
 
