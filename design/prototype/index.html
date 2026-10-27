@@ -1,0 +1,940 @@
+<title>Protótipo Nexo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: moldura de janela desktop; Início = grade bento de 4 colunas; Dispositivo = palco central com o mouse + painel lateral; barra de aplicar no rodapé da janela. Paleta escolhida: Grafite + Ciano. */
+:root {
+  --font-display: "Bricolage Grotesque", "Onest", system-ui, sans-serif;
+  --font-body: "Onest", system-ui, -apple-system, "Segoe UI", "Ubuntu", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "DejaVu Sans Mono", monospace;
+  --radius-lg: 18px; --radius-md: 12px; --radius-sm: 8px;
+  --bg: #e9edf1; --window: #f6f8fa; --surface: #ffffff; --surface-2: #edf1f4; --line: #d6dde3;
+  --fg: #121820; --muted: #566270; --accent: #087784; --accent-soft: #d3eef1; --on-accent: #ffffff;
+  --accent-glow: #10a9b8;
+  --ok: #1e7f4f; --warn: #946000; --err: #bf3631;
+  --stage-a: #ffffff; --stage-b: #dfe6ec;
+  --shadow: 0 1px 2px rgba(16, 28, 40, .06), 0 8px 24px rgba(16, 28, 40, .08);
+  --drop: rgba(20, 30, 40, .35);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #090c0f; --window: #11161a; --surface: #171c21; --surface-2: #1e252b; --line: #29313a;
+    --fg: #e5ebf0; --muted: #8b97a3; --accent: #3fc9d6; --accent-soft: #10353a; --on-accent: #032326;
+    --accent-glow: #3fc9d6;
+    --ok: #4fc985; --warn: #e3b04b; --err: #f06a64;
+    --stage-a: #1d252b; --stage-b: #0d1114;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px rgba(0, 0, 0, .35);
+    --drop: rgba(0, 0, 0, .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #090c0f; --window: #11161a; --surface: #171c21; --surface-2: #1e252b; --line: #29313a;
+  --fg: #e5ebf0; --muted: #8b97a3; --accent: #3fc9d6; --accent-soft: #10353a; --on-accent: #032326;
+  --accent-glow: #3fc9d6;
+  --ok: #4fc985; --warn: #e3b04b; --err: #f06a64;
+  --stage-a: #1d252b; --stage-b: #0d1114;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 12px 32px rgba(0, 0, 0, .35);
+  --drop: rgba(0, 0, 0, .7);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); padding-inline: 16px; padding-block: 20px 32px; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--font-mono); font-size: .86em; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -.01em; }
+
+/* ---- Controles do protótipo ---- */
+.proto { max-width: 1240px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.proto__title { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-right: auto; }
+.proto__title small { display: block; font: 500 12px/1.3 var(--font-body); color: var(--muted); letter-spacing: .02em; }
+.seg { display: inline-flex; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 3px; gap: 2px; align-items: center; }
+.seg__label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-right: 4px; padding-left: 8px; }
+.seg button { border: 0; background: transparent; border-radius: 999px; padding: 5px 12px; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--fg); font-weight: 600; }
+
+/* Vitrine da identidade */
+.identity { max-width: 1240px; margin: 0 auto 16px; display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 12px; }
+.id-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.id-card__label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.lockup { display: flex; align-items: center; gap: 14px; }
+.lockup .mark { width: 64px; height: 64px; flex: none; }
+.wordmark { font-family: var(--font-display); font-weight: 700; font-size: 44px; letter-spacing: -.03em; line-height: 1; display: inline-flex; align-items: baseline; }
+.wordmark .wx { display: inline-block; width: .52em; height: .52em; margin: 0 .02em; transform: translateY(.02em); }
+.id-card p { margin: 0; font-size: 13px; color: var(--muted); }
+.appicon-demo { display: flex; align-items: center; gap: 14px; }
+.squircle { width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(160deg, #1f262d, #0b0f12); box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 6px 16px rgba(0,0,0,.25); flex: none; }
+.squircle svg { width: 40px; height: 40px; }
+.tray { display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 10px; background: #1b1f23; color: #e8edf2; font-size: 13px; width: fit-content; }
+.tray svg { width: 16px; height: 16px; }
+
+/* ---- Janela ---- */
+.window { max-width: 1240px; margin: 0 auto; background: var(--window); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; min-height: 720px; }
+.titlebar { display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 18px; border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 9px; }
+.brand .mark { width: 28px; height: 28px; }
+.brand .wordmark { font-size: 21px; }
+.nav { display: flex; gap: 4px; margin-left: 18px; flex-wrap: wrap; }
+.nav button { border: 0; background: transparent; padding: 6px 12px; border-radius: 999px; color: var(--muted); font-size: 14px; }
+.nav button[aria-current="page"] { background: var(--surface-2); color: var(--fg); font-weight: 600; }
+.titlebar__right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.status { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; color: var(--muted); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent); }
+.wc { display: flex; gap: 8px; }
+.wc span { width: 14px; height: 14px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--line); }
+.content { flex: 1; padding: 24px; display: flex; flex-direction: column; min-width: 0; }
+
+/* ---- Início (bento) ---- */
+.home__head { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.home__head h1 { font-size: 30px; }
+.home__head p { margin: 4px 0 0; color: var(--muted); }
+.bento { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(150px, auto); gap: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; text-align: left; }
+button.tile { cursor: pointer; transition: border-color .15s; }
+button.tile:hover { border-color: var(--accent); }
+.tile__label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.tile__value { font-family: var(--font-display); font-weight: 700; font-size: 34px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.tile__value small { font: 500 14px var(--font-body); color: var(--muted); margin-left: 4px; }
+.tile__foot { margin-top: auto; font-size: 13px; color: var(--muted); }
+.tile--device { grid-column: span 2; grid-row: span 2; padding: 22px; background: radial-gradient(120% 90% at 70% 35%, var(--stage-a), var(--stage-b)); }
+.tile--device h2 { font-size: 26px; }
+.device-mini { flex: 1; display: grid; place-items: center; min-height: 250px; }
+.device-mini svg { width: min(440px, 94%); height: auto; }
+.pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); color: var(--fg); border: 1px solid var(--line); }
+.pill--accent { background: var(--accent-soft); border-color: transparent; }
+.pill--warn { color: var(--warn); }
+.cta { align-self: flex-start; border: 0; border-radius: 999px; padding: 9px 18px; background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 14px; }
+.meter { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+.battery-ring { width: 64px; height: 64px; }
+.tile--wide { grid-column: span 2; }
+.tile--muted { background: var(--surface-2); border-style: dashed; }
+.tile--add { align-items: center; justify-content: center; color: var(--muted); border-style: dashed; background: transparent; }
+.buds { display: flex; gap: 14px; align-items: center; }
+.buds svg { flex: none; }
+
+/* ---- Dispositivo (palco) ---- */
+.device__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+.back { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 13px; color: var(--muted); }
+.device__head h1 { font-size: 26px; }
+.profiles { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.profiles button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-size: 13px; }
+.profiles button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.profiles button:disabled { color: var(--muted); cursor: not-allowed; }
+.device__body { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; flex: 1; min-height: 0; }
+.stage { position: relative; border-radius: var(--radius-lg); background: radial-gradient(90% 80% at 50% 40%, var(--stage-a), var(--stage-b)); border: 1px solid var(--line); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.tabs { display: flex; gap: 4px; padding: 10px; flex-wrap: wrap; }
+.tabs button { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; color: var(--muted); font-size: 14px; }
+.tabs button[aria-selected="true"] { background: var(--surface); color: var(--fg); font-weight: 600; box-shadow: var(--shadow); }
+.stage > svg { width: 100%; height: auto; display: block; flex: 1; }
+
+
+.leader { stroke: var(--muted); stroke-width: 1.2; fill: none; opacity: .7; }
+.hs { cursor: pointer; }
+.hs circle.core { fill: var(--accent); stroke: var(--window); stroke-width: 2.5; }
+.hs circle.ring { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0; }
+.hs.is-selected circle.ring, .hs:hover circle.ring, .hs:focus-visible circle.ring { opacity: .9; }
+.hs.is-locked circle.core { fill: var(--muted); }
+.hs:focus { outline: none; }
+.callout rect { fill: var(--surface); stroke: var(--line); }
+.callout.is-selected rect { stroke: var(--accent); stroke-width: 2; }
+.callout text { fill: var(--fg); font-family: var(--font-body); }
+.callout .c-name { font-size: 12px; fill: var(--muted); letter-spacing: .02em; }
+.callout .c-value { font-size: 14px; font-weight: 600; }
+@media (prefers-reduced-motion: no-preference) {
+  .hs.is-selected circle.ring { animation: pulse 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+  @keyframes pulse { 0% { transform: scale(.9); opacity: .9; } 100% { transform: scale(1.6); opacity: 0; } }
+}
+.chips { display: none; flex-wrap: wrap; gap: 6px; padding: 10px; }
+.chips button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 11px; font-size: 13px; }
+.chips button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.stage__note { padding: 0 14px 12px; font-size: 12px; color: var(--muted); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px; display: flex; flex-direction: column; gap: 16px; min-width: 0; overflow: auto; max-height: 660px; }
+.panel h2 { font-size: 20px; }
+.panel__sub { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field__row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.field__label { font-weight: 600; font-size: 14px; }
+.hint { font-size: 12.5px; color: var(--muted); margin: 0; }
+.hint--warn { color: var(--warn); }
+.action-card { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-2); text-align: left; width: 100%; }
+.action-card:hover { border-color: var(--accent); }
+.action-card__text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.action-card__title { font-weight: 600; font-size: 14px; }
+.change { font-size: 12px; color: var(--accent); white-space: nowrap; }
+.keys { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+kbd { font-family: var(--font-mono); font-size: 11.5px; padding: 2px 6px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); border-bottom-width: 2px; color: var(--fg); white-space: nowrap; }
+.keys .plus { color: var(--muted); font-size: 11px; }
+.pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pad button { min-height: 86px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-2); padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; font-size: 12px; }
+.pad button:hover { border-color: var(--accent); }
+.pad .arrow { font-size: 16px; color: var(--accent); line-height: 1; }
+.pad .t { font-weight: 600; font-size: 12px; line-height: 1.2; }
+.pad .empty { visibility: hidden; }
+.pad .center { background: var(--accent-soft); }
+.toggle { position: relative; width: 44px; height: 26px; border-radius: 999px; border: 0; background: var(--line); flex: none; transition: background .15s; }
+.toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .15s; }
+.toggle[aria-checked="true"] { background: var(--accent); }
+.toggle[aria-checked="true"]::after { transform: translateX(18px); }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.num { width: 92px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; }
+.dpi-big { font-family: var(--font-display); font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.dpi-big small { font: 500 14px var(--font-body); color: var(--muted); margin-left: 6px; }
+.scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.presets button { border: 1px solid var(--line); background: var(--surface-2); border-radius: 999px; padding: 4px 11px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.presets button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.locked { display: flex; gap: 10px; padding: 12px; border-radius: var(--radius-md); background: var(--surface-2); font-size: 14px; color: var(--muted); }
+
+.picker__back { align-self: flex-start; border: 0; background: transparent; color: var(--muted); padding: 0; font-size: 13px; }
+.capture { border: 1.5px dashed var(--accent); border-radius: var(--radius-md); padding: 12px; background: var(--accent-soft); display: flex; flex-direction: column; gap: 6px; cursor: text; }
+.capture__title { font-weight: 600; font-size: 14px; }
+.capture__detail { font-size: 12px; color: var(--muted); }
+.group__title { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 4px 0 6px; }
+.options { display: flex; flex-direction: column; gap: 4px; }
+.option { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid transparent; background: transparent; border-radius: var(--radius-sm); padding: 8px 10px; text-align: left; font-size: 14px; width: 100%; }
+.option:hover { background: var(--surface-2); border-color: var(--line); }
+.badge { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 999px; background: var(--surface-2); color: var(--warn); border: 1px solid var(--line); }
+
+.check { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-2); font-size: 13.5px; }
+.check b { display: block; }
+.sev { flex: none; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; padding: 2px 7px; border-radius: 999px; border: 1px solid currentColor; }
+.sev--err { color: var(--err); } .sev--warn { color: var(--warn); } .sev--ok { color: var(--ok); }
+pre.cfg { margin: 0; padding: 12px; border-radius: var(--radius-md); background: var(--surface-2); border: 1px solid var(--line); font-family: var(--font-mono); font-size: 12px; line-height: 1.55; overflow: auto; max-height: 300px; }
+
+.applybar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; border-top: 1px solid var(--line); background: var(--surface); flex-wrap: wrap; }
+.applybar__msg { display: flex; align-items: center; gap: 8px; font-size: 14px; min-width: 0; flex: 1; }
+.applybar__msg .count { font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 8px 16px; font-size: 14px; }
+.btn--primary { background: var(--accent); color: var(--on-accent); border-color: transparent; font-weight: 600; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.steps { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.steps span.done { color: var(--ok); }
+.steps span.now { color: var(--fg); font-weight: 600; }
+
+.rules { display: flex; flex-direction: column; gap: 8px; max-width: 720px; }
+.rule { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); }
+.rule__app { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.appmono { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: var(--on-accent); background: var(--accent); flex: none; }
+.example-tag { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--warn); }
+
+@media (max-width: 1060px) {
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .device__body { grid-template-columns: minmax(0, 1fr); }
+  .panel { max-height: none; }
+  .identity { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .content { padding: 16px; }
+  .bento, .identity { grid-template-columns: minmax(0, 1fr); }
+  .tile--device, .tile--wide { grid-column: auto; grid-row: auto; }
+  .nav { margin-left: 0; }
+  .wc { display: none; }
+  .callout, .leader { display: none; }
+  .chips { display: flex; }
+  .applybar { padding: 12px 16px; }
+  .rule { grid-template-columns: minmax(0, 1fr); }
+  .wordmark { font-size: 36px; }
+}
+</style>
+
+<div class="proto" role="region" aria-label="Controles do protótipo">
+  <div class="proto__title">Protótipo Nexo · Fase 2 · v4<small>Ciano, logo Constelação e ilustração realista escolhidos · nada é aplicado de verdade</small></div>
+  <div class="seg" role="group" aria-label="Tema">
+    <span class="seg__label">Tema</span>
+    <button type="button" data-theme-choice="system" aria-pressed="true">Sistema</button>
+    <button type="button" data-theme-choice="light" aria-pressed="false">Claro</button>
+    <button type="button" data-theme-choice="dark" aria-pressed="false">Escuro</button>
+  </div>
+</div>
+
+<section class="identity" id="identity" aria-label="Identidade visual"></section>
+
+<div class="window">
+  <header class="titlebar">
+    <div class="brand" id="brand"></div>
+    <nav class="nav" aria-label="Seções">
+      <button type="button" data-nav="home" aria-current="page">Dispositivos</button>
+      <button type="button" data-nav="apps">Perfis por app</button>
+    </nav>
+    <div class="titlebar__right">
+      <span class="status"><span class="dot"></span>logid 0.3.5 ativo</span>
+      <div class="wc" aria-hidden="true"><span></span><span></span><span></span></div>
+    </div>
+  </header>
+  <main class="content" id="content"></main>
+  <footer class="applybar" id="applybar" hidden></footer>
+</div>
+
+<script>
+"use strict";
+
+// ---------- Dados reais: /etc/logid.cfg do usuário (27/10/2026) + capacidades do spike S2 ----------
+const DPI_RANGE = { min: 200, max: 8000, step: 50 };
+const initialConfig = () => ({
+  dpi: 1600,
+  smartshift: { on: true, threshold: 20 },
+  hires: false, invert: false,
+  thumb: {
+    invert: true, interval: 3,
+    left: { type: "keypress", keys: ["KEY_LEFTCTRL", "KEY_LEFTSHIFT", "KEY_TAB"] },
+    right: { type: "keypress", keys: ["KEY_LEFTCTRL", "KEY_TAB"] },
+  },
+  buttons: {
+    c3: { type: "gestures", gestures: {
+      none: { type: "keypress", keys: ["KEY_LEFTMETA"] },
+      up: { type: "keypress", keys: ["KEY_LEFTMETA", "KEY_S"] },
+      down: { type: "keypress", keys: ["KEY_LEFTCTRL", "KEY_C"] },
+      left: { type: "keypress", keys: ["KEY_LEFTCTRL", "KEY_V"] },
+      right: { type: "keypress", keys: ["KEY_LEFTCTRL", "KEY_LEFTALT", "KEY_RIGHT"] },
+    } },
+    c4: { type: "togglesmartshift" },
+    "52": null, "53": null, "56": null,
+  },
+});
+
+const BUTTONS = {
+  "50": { cid: 0x50, name: "Clique esquerdo", locked: true },
+  "51": { cid: 0x51, name: "Clique direito", locked: true },
+  "52": { cid: 0x52, name: "Clique da roda" },
+  c4: { cid: 0xc4, name: "Botão atrás da roda" },
+  thumb: { name: "Roda lateral" },
+  "56": { cid: 0x56, name: "Avançar" },
+  "53": { cid: 0x53, name: "Voltar" },
+  c3: { cid: 0xc3, name: "Botão de gestos" },
+};
+const ORIGINAL = { "52": "Clique do meio", "53": "Voltar", "56": "Avançar" };
+
+const KEY_LABEL = {
+  KEY_LEFTCTRL: "Ctrl", KEY_RIGHTCTRL: "Ctrl dir.", KEY_LEFTSHIFT: "Shift", KEY_RIGHTSHIFT: "Shift dir.",
+  KEY_LEFTALT: "Alt", KEY_RIGHTALT: "AltGr", KEY_LEFTMETA: "Super", KEY_RIGHTMETA: "Super dir.",
+  KEY_TAB: "Tab", KEY_ESC: "Esc", KEY_ENTER: "Enter", KEY_SPACE: "Espaço", KEY_BACKSPACE: "Backspace",
+  KEY_DELETE: "Del", KEY_RIGHT: "→", KEY_LEFT: "←", KEY_UP: "↑", KEY_DOWN: "↓", KEY_HOME: "Home",
+  KEY_END: "End", KEY_PAGEUP: "PgUp", KEY_PAGEDOWN: "PgDn", KEY_SYSRQ: "Print", KEY_VOLUMEUP: "Volume +",
+  KEY_VOLUMEDOWN: "Volume −", KEY_MUTE: "Mudo", KEY_PLAYPAUSE: "Tocar/Pausar", KEY_NEXTSONG: "Próxima",
+  KEY_BACK: "Voltar", KEY_FORWARD: "Avançar",
+};
+// KeyboardEvent.code (posição física, padrão USB HID) → nome evdev aceito pela libevdev.
+const CODE_TO_EVDEV = {
+  ControlLeft: "KEY_LEFTCTRL", ControlRight: "KEY_RIGHTCTRL", ShiftLeft: "KEY_LEFTSHIFT", ShiftRight: "KEY_RIGHTSHIFT",
+  AltLeft: "KEY_LEFTALT", AltRight: "KEY_RIGHTALT", MetaLeft: "KEY_LEFTMETA", MetaRight: "KEY_RIGHTMETA",
+  Tab: "KEY_TAB", Escape: "KEY_ESC", Enter: "KEY_ENTER", Space: "KEY_SPACE", Backspace: "KEY_BACKSPACE",
+  Delete: "KEY_DELETE", Insert: "KEY_INSERT", ArrowUp: "KEY_UP", ArrowDown: "KEY_DOWN", ArrowLeft: "KEY_LEFT",
+  ArrowRight: "KEY_RIGHT", Home: "KEY_HOME", End: "KEY_END", PageUp: "KEY_PAGEUP", PageDown: "KEY_PAGEDOWN",
+  Semicolon: "KEY_SEMICOLON", Quote: "KEY_APOSTROPHE", BracketLeft: "KEY_LEFTBRACE", BracketRight: "KEY_RIGHTBRACE",
+  Backslash: "KEY_BACKSLASH", Comma: "KEY_COMMA", Period: "KEY_DOT", Slash: "KEY_SLASH", Minus: "KEY_MINUS",
+  Equal: "KEY_EQUAL", Backquote: "KEY_GRAVE", IntlBackslash: "KEY_102ND", IntlRo: "KEY_RO", PrintScreen: "KEY_SYSRQ",
+};
+for (let i = 0; i < 26; i++) { const c = String.fromCharCode(65 + i); CODE_TO_EVDEV["Key" + c] = "KEY_" + c; }
+for (let i = 0; i < 10; i++) CODE_TO_EVDEV["Digit" + i] = "KEY_" + i;
+for (let i = 1; i <= 12; i++) CODE_TO_EVDEV["F" + i] = "KEY_F" + i;
+const MODIFIERS = new Set(["KEY_LEFTCTRL", "KEY_RIGHTCTRL", "KEY_LEFTSHIFT", "KEY_RIGHTSHIFT", "KEY_LEFTALT", "KEY_RIGHTALT", "KEY_LEFTMETA", "KEY_RIGHTMETA"]);
+
+const PRESETS = [
+  { group: "Área de trabalho (GNOME)", items: [
+    ["Visão geral", ["KEY_LEFTMETA"]], ["Configurações rápidas", ["KEY_LEFTMETA", "KEY_S"]],
+    ["Espaço de trabalho à direita", ["KEY_LEFTCTRL", "KEY_LEFTALT", "KEY_RIGHT"]],
+    ["Espaço de trabalho à esquerda", ["KEY_LEFTCTRL", "KEY_LEFTALT", "KEY_LEFT"]],
+    ["Captura de tela", ["KEY_SYSRQ"]] ] },
+  { group: "Edição", items: [
+    ["Copiar", ["KEY_LEFTCTRL", "KEY_C"]], ["Colar", ["KEY_LEFTCTRL", "KEY_V"]],
+    ["Recortar", ["KEY_LEFTCTRL", "KEY_X"]], ["Desfazer", ["KEY_LEFTCTRL", "KEY_Z"]] ] },
+  { group: "Navegação", items: [
+    ["Próxima aba", ["KEY_LEFTCTRL", "KEY_TAB"]], ["Aba anterior", ["KEY_LEFTCTRL", "KEY_LEFTSHIFT", "KEY_TAB"]],
+    ["Fechar aba", ["KEY_LEFTCTRL", "KEY_W"]], ["Voltar (navegador)", ["KEY_BACK"]], ["Avançar (navegador)", ["KEY_FORWARD"]] ] },
+  { group: "Mídia", items: [
+    ["Volume +", ["KEY_VOLUMEUP"]], ["Volume −", ["KEY_VOLUMEDOWN"]], ["Mudo", ["KEY_MUTE"]],
+    ["Tocar/Pausar", ["KEY_PLAYPAUSE"]], ["Próxima faixa", ["KEY_NEXTSONG"]] ] },
+];
+const MOUSE_ACTIONS = [
+  { title: "Alternar SmartShift", action: { type: "togglesmartshift" } },
+  { title: "Alternar rolagem precisa", action: { type: "togglehiresscroll" } },
+  { title: "Aumentar DPI (+200)", action: { type: "changedpi", inc: 200 } },
+  { title: "Diminuir DPI (−200)", action: { type: "changedpi", inc: -200 } },
+  { title: "Próximo computador (Easy-Switch)", action: { type: "changehost", host: "next" }, badge: "experimental" },
+  { title: "Nenhuma ação", action: { type: "none" } },
+];
+
+// ---------- Estado ----------
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const state = {
+  screen: "home", tab: "buttons", selected: "c3", picker: null, capture: null,
+  config: initialConfig(), applied: initialConfig(), simulate: false, showCfg: false,
+  applying: null, toast: "", logo: "constelacao",
+};
+
+// ---------- Domínio ----------
+const keyName = (k) => (typeof k === "string" ? k : k.name);
+const keyLabel = (k) => (typeof k === "object" && k.label) || KEY_LABEL[keyName(k)] || keyName(k).replace(/^KEY_/, "");
+function presetTitle(keys) {
+  const sig = keys.map(keyName).join("+");
+  for (const g of PRESETS) for (const [t, ks] of g.items) if (ks.join("+") === sig) return t;
+  return "Atalho de teclado";
+}
+function describe(action, fallback) {
+  if (!action) return { title: fallback || "Função original" };
+  switch (action.type) {
+    case "keypress": return { title: presetTitle(action.keys), keys: action.keys };
+    case "gestures": return { title: "Gestos", sub: Object.keys(action.gestures).filter((d) => action.gestures[d]).length + " direções" };
+    case "togglesmartshift": return { title: "Alternar SmartShift" };
+    case "togglehiresscroll": return { title: "Alternar rolagem precisa" };
+    case "changedpi": return { title: (action.inc > 0 ? "Aumentar" : "Diminuir") + " DPI (" + (action.inc > 0 ? "+" : "−") + Math.abs(action.inc) + ")" };
+    case "changehost": return { title: "Próximo computador" };
+    default: return { title: "Nenhuma ação" };
+  }
+}
+const short = (action, fallback) => {
+  const d = describe(action, fallback);
+  return d.keys ? d.keys.map(keyLabel).join("+") : d.title;
+};
+// Igual a DPI::getClosestDPI do logid (faixa): 16 bits, limites e passo.
+function effectiveDpi(v) {
+  if (!Number.isFinite(v) || v === 0) return null;
+  const d = v & 0xffff, { min, max, step } = DPI_RANGE;
+  if (d >= min && d <= max && (d - min) % step === 0) return d;
+  if (d > max) return max;
+  if (d < min) return min;
+  return min + Math.round((d - min) / step) * step;
+}
+function getAt(path) {
+  const [root, sub] = path.split(".");
+  if (root === "thumb") return state.config.thumb[sub];
+  const b = state.config.buttons[root];
+  return sub ? b && b.gestures[sub] : b;
+}
+function setAt(path, action) {
+  const [root, sub] = path.split(".");
+  if (root === "thumb") { state.config.thumb[sub] = action; return; }
+  if (sub) state.config.buttons[root].gestures[sub] = action;
+  else state.config.buttons[root] = action;
+}
+function changeCount() {
+  const a = state.config, b = state.applied;
+  const pairs = [[a.dpi, b.dpi], [a.smartshift, b.smartshift], [a.hires, b.hires], [a.invert, b.invert],
+    [a.thumb.invert, b.thumb.invert], [a.thumb.interval, b.thumb.interval], [a.thumb.left, b.thumb.left], [a.thumb.right, b.thumb.right]];
+  for (const k of Object.keys(a.buttons)) pairs.push([a.buttons[k], b.buttons[k]]);
+  return pairs.filter(([x, y]) => JSON.stringify(x) !== JSON.stringify(y)).length;
+}
+const SIMULATED = [
+  { sev: "err", title: "dpi: 1600L", text: "O “L” transforma o DPI numa lista vazia e o logid desiste do mouse inteiro." },
+  { sev: "err", title: "interval: 0 na roda lateral", text: "Divisão por zero: o logid cai ao girar a roda." },
+  { sev: "warn", title: "CycleDPI no botão atrás da roda", text: "Não funciona no logid 0.3.5 (bug conhecido)." },
+];
+const issues = () => (state.simulate ? SIMULATED : []);
+
+// ---------- Gerador do logid.cfg (mesmo formato canônico do nexohub_logid_config) ----------
+const G = (...e) => ({ g: e }), L = (...e) => ({ l: e }), A = (...e) => ({ a: e }), HEX = (n) => ({ hex: n });
+const TYPE = { keypress: "Keypress", togglesmartshift: "ToggleSmartShift", togglehiresscroll: "ToggleHiresScroll", changedpi: "ChangeDPI", changehost: "ChangeHost", none: "None", gestures: "Gestures" };
+function actionNode(a) {
+  const f = [["type", TYPE[a.type]]];
+  if (a.type === "keypress") f.push(["keys", A(...a.keys.map(keyName))]);
+  if (a.type === "changedpi") f.push(["inc", a.inc]);
+  if (a.type === "changehost") f.push(["host", a.host]);
+  if (a.type === "gestures") {
+    const dirs = [["none", "None"], ["up", "Up"], ["down", "Down"], ["left", "Left"], ["right", "Right"]];
+    f.push(["gestures", L(...dirs.filter(([k]) => a.gestures[k]).map(([k, n]) => G(["direction", n], ["mode", "OnRelease"], ["action", actionNode(a.gestures[k])])))]);
+  }
+  return G(...f);
+}
+function buildTree(c) {
+  const buttons = Object.entries(c.buttons).filter(([, a]) => a).map(([id, a]) => G(["cid", HEX(BUTTONS[id].cid)], ["action", actionNode(a)]));
+  const thumbGesture = (a) => G(["mode", "OnInterval"], ["interval", c.thumb.interval], ["action", actionNode(a)]);
+  const dev = [["name", "MX Master 3S"], ["dpi", c.dpi],
+    ["smartshift", G(["on", c.smartshift.on], ["threshold", c.smartshift.threshold])],
+    ["hiresscroll", G(["hires", c.hires], ["invert", c.invert], ["target", false])],
+    ["thumbwheel", G(["divert", true], ["invert", c.thumb.invert], ["left", thumbGesture(c.thumb.left)], ["right", thumbGesture(c.thumb.right)])]];
+  if (buttons.length) dev.push(["buttons", L(...buttons)]);
+  return G(["devices", L(G(...dev))]);
+}
+function writeValue(v, depth) {
+  const ind = "    ".repeat(depth);
+  if (v && v.g) {
+    if (!v.g.length) return "{}";
+    return "{\n" + v.g.map(([k, x]) => ind + "    " + k + ": " + writeValue(x, depth + 1) + ";\n").join("") + ind + "}";
+  }
+  if (v && v.l) return "(\n" + v.l.map((x) => ind + "    " + writeValue(x, depth + 1)).join(",\n") + "\n" + ind + ")";
+  if (v && v.a) return "[" + v.a.map((x) => writeValue(x, depth)).join(", ") + "]";
+  if (v && v.hex !== undefined) return "0x" + v.hex.toString(16);
+  if (typeof v === "string") return JSON.stringify(v);
+  return String(v);
+}
+const writeCfg = (c) => "# Managed by Nexo\n\n" + buildTree(c).g.map(([k, x]) => k + ": " + writeValue(x, 0) + ";\n").join("");
+
+// ---------- Ilustração do mouse (original; realista, vista 3/4 pela lateral esquerda) ----------
+// Coordenadas locais 0–560 × 0–360. Frente do mouse à ESQUERDA, como numa foto real da lateral do polegar:
+// roda lateral em cima, Avançar (frente) e Voltar (trás) lado a lado logo abaixo, botão de gestos no apoio.
+const V = {
+  outline: "M510,292 C528,250 510,170 450,118 C405,80 340,66 280,74 C210,84 130,104 80,140 C58,156 52,190 60,228 C66,262 74,284 86,292 C200,302 380,304 510,292 Z",
+  top: "M488,214 C492,180 480,146 450,118 C405,80 340,66 280,74 C210,84 130,104 80,140 C68,150 64,172 70,206 C110,176 170,154 250,152 C340,150 430,170 488,214 Z",
+  shoulder: "M488,214 C430,170 340,150 250,152 C170,154 110,176 70,206",
+  topEdge: "M450,118 C405,80 340,66 280,74 C210,84 130,104 80,140",
+  seam: "M230,153 C236,128 244,100 252,78",
+  split: "M224,118 C170,126 124,142 78,170",
+  shelf: "M488,268 C456,244 370,236 272,240 C230,242 208,252 206,266 C206,282 230,296 274,299 C356,303 440,300 488,268 Z",
+  shelfTop: "M488,268 C456,244 370,236 272,240 C230,242 208,252 206,266",
+  sole: "M502,290 C380,300 200,300 84,288 L86,295 C200,306 380,307 506,297 Z",
+};
+// [cx, cy, largura, altura, raio, rotação] — partes desenhadas centradas.
+const P = {
+  smartshift: [216, 119, 18, 11, 5, -9],
+  thumbwheel: [256, 193, 56, 22, 10, 4], back: [261, 222, 54, 16, 8, 3], forward: [193, 222, 54, 16, 8, 3],
+};
+// Roda principal: disco de metal em pé no sulco entre os botões (curva `split`), visto de lado.
+// slot = onde o disco sai do casco (ponto da curva em x = 172) e angle = inclinação do sulco ali;
+// drop = quanto o centro do disco fica abaixo do sulco; depth = deslocamento da face de trás (espessura).
+const WHEEL = { slot: [172, 129], angle: -15.6, rx: 27, ry: 25, drop: 6, depth: [1, -7], slotRx: 31, slotRy: 5 };
+const GESTURE = [250, 258, 24, 9];
+const LED = [218, 252];
+const part = (cls, [x, y, w, h, r, rot], extra = "") =>
+  '<rect class="' + cls + '" x="' + (x - w / 2) + '" y="' + (y - h / 2) + '" width="' + w + '" height="' + h + '" rx="' + r + '" transform="rotate(' + rot + " " + x + " " + y + ')"' + extra + "/>";
+const range = (a, b, s) => { const out = []; for (let v = a; v <= b; v += s) out.push(v); return out; };
+const rad = (deg) => (deg * Math.PI) / 180;
+const pt = (q) => q.map((v) => v.toFixed(1)).join(",");
+
+function drawWheel(id, url) {
+  const { slot: [sx, sy], angle, rx, ry, drop, depth: [dx, dy], slotRx, slotRy } = WHEEL;
+  const ux = Math.cos(rad(angle)), uy = Math.sin(rad(angle)); // ao longo do sulco, para trás
+  const nx = -uy, ny = ux; // normal do sulco, para baixo (lado de quem olha)
+  const cx = sx, cy = sy + drop;
+  // Só a parte do disco acima da borda do sulco aparece; o resto está dentro do casco.
+  const along = (k, off) => [sx + ux * k + nx * off, sy + uy * k + ny * off];
+  const a = along(-60, 3), b = along(60, 3);
+  const cap = '<clipPath id="' + id("cap") + '"><polygon points="' + [a, b, [b[0], b[1] - 90], [a[0], a[1] - 90]].map(pt).join(" ") + '"/></clipPath>';
+  // Banda da espessura: elipses empilhadas da face da frente até a de trás.
+  const band = range(1, 7, 1).reverse().map((k) => '<ellipse cx="' + (cx + (dx * k) / 7) + '" cy="' + (cy + (dy * k) / 7) + '" rx="' + rx + '" ry="' + ry + '" fill="' + url("silver") + '"' +
+    (k === 7 ? ' stroke="#1b1f23" stroke-width="1"' : "") + "/>").join("");
+  // Serrilhado da borda: liga a borda da frente à de trás ao longo do arco de cima.
+  const knurl = range(10, 170, 6).map((deg) => {
+    const x = cx + rx * Math.cos(rad(deg)), y = cy - ry * Math.sin(rad(deg));
+    return '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + (x + dx).toFixed(1) + '" y2="' + (y + dy).toFixed(1) + '" stroke="#2a2f34" stroke-width=".9" opacity=".6"/>';
+  }).join("");
+  const ring = (k, stroke, w, oy = 0) => '<ellipse cx="' + cx + '" cy="' + (cy + oy) + '" rx="' + (rx * k).toFixed(1) + '" ry="' + (ry * k).toFixed(1) + '" fill="none" stroke="' + stroke + '" stroke-width="' + w + '"/>';
+  const lipFrom = along(-slotRx, 0), lipTo = along(slotRx, 0);
+  return cap +
+    '<ellipse cx="' + sx + '" cy="' + sy + '" rx="' + slotRx + '" ry="' + slotRy + '" fill="#050607" transform="rotate(' + angle + " " + sx + " " + sy + ')"/>' +
+    '<g clip-path="' + url("cap") + '">' + band + knurl +
+      '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ry + '" fill="' + url("face") + '" stroke="#2b3035" stroke-width="1"/>' +
+      ring(0.86, "#ffffff", 0.6) + ring(0.58, "#59616a", 1) + ring(0.58, "#ffffff", 0.6, 1) +
+      '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + (rx * 0.2).toFixed(1) + '" ry="' + (ry * 0.2).toFixed(1) + '" fill="#cdd3d8" stroke="#6a737b" stroke-width=".8"/>' +
+      '<path d="M' + pt([cx - rx * 0.8, cy - ry * 0.3]) + " A" + rx * 0.85 + " " + ry * 0.85 + " 0 0 1 " + pt([cx - rx * 0.05, cy - ry * 0.85]) +
+        '" fill="none" stroke="#ffffff" stroke-opacity=".75" stroke-width="2" stroke-linecap="round" filter="' + url("soft") + '"/>' +
+    "</g>" +
+    // Borda do casco na frente do disco (lado de quem olha).
+    '<path d="M' + pt(lipFrom) + " A" + slotRx + " " + slotRy + " " + angle + " 0 0 " + pt(lipTo) + '" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="1.2"/>';
+}
+
+function drawThumbwheel(url) {
+  // Cilindro de metal com eixo quase vertical: de lado vemos a borda serrilhada. As estrias se
+  // aproximam nas pontas porque a superfície faz a curva para longe de quem olha.
+  const [x, y, w, h, r, rot] = P.thumbwheel;
+  const ridges = range(-78, 78, 9.75).map((deg) => {
+    const lx = (x + (w / 2 - 3) * Math.sin(rad(deg))).toFixed(1);
+    return '<line x1="' + lx + '" x2="' + lx + '" y1="' + (y - h / 2 + 3) + '" y2="' + (y + h / 2 - 3) + '" stroke="#2a2f34" stroke-width="1" opacity=".55"/>';
+  }).join("");
+  return '<g transform="rotate(' + rot + " " + x + " " + y + ')">' +
+    '<rect x="' + (x - w / 2 - 4) + '" y="' + (y - h / 2 - 3) + '" width="' + (w + 8) + '" height="' + (h + 6) + '" rx="' + (r + 3) + '" fill="#07080a"/>' +
+    '<rect x="' + (x - w / 2) + '" y="' + (y - h / 2) + '" width="' + w + '" height="' + h + '" rx="' + r + '" fill="' + url("thumb") + '" stroke="#1b1f23" stroke-width="1"/>' +
+    '<rect x="' + (x - w / 2) + '" y="' + (y - h / 2) + '" width="' + w + '" height="' + h + '" rx="' + r + '" fill="' + url("thumbv") + '"/>' +
+    ridges + "</g>";
+}
+
+function drawMouse(p) {
+  const id = (n) => p + n, url = (n) => "url(#" + p + n + ")";
+  const defs = "<defs>" +
+    '<linearGradient id="' + id("side") + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f5861"/><stop offset=".42" stop-color="#2d3339"/><stop offset="1" stop-color="#111417"/></linearGradient>' +
+    '<linearGradient id="' + id("front") + '" x1="1" y1="0" x2="0" y2="0"><stop offset=".55" stop-color="#ffffff" stop-opacity="0"/><stop offset="1" stop-color="#ffffff" stop-opacity=".10"/></linearGradient>' +
+    '<radialGradient id="' + id("top") + '" cx="42%" cy="22%" r="80%"><stop offset="0" stop-color="#717a83"/><stop offset=".45" stop-color="#3f464d"/><stop offset="1" stop-color="#23282d"/></radialGradient>' +
+    '<linearGradient id="' + id("rubber") + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3c434a"/><stop offset="1" stop-color="#16191c"/></linearGradient>' +
+    '<linearGradient id="' + id("shelf") + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f353b"/><stop offset=".6" stop-color="#1a1e22"/><stop offset="1" stop-color="#0e1012"/></linearGradient>' +
+    // Prata: banda da roda principal, face do disco e o cilindro da roda lateral.
+    '<linearGradient id="' + id("silver") + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2f5"/><stop offset=".45" stop-color="#b3bcc3"/><stop offset="1" stop-color="#5f676f"/></linearGradient>' +
+    '<radialGradient id="' + id("face") + '" cx="38%" cy="30%" r="80%"><stop offset="0" stop-color="#fbfcfd"/><stop offset=".45" stop-color="#d3d9de"/><stop offset=".85" stop-color="#8e969e"/><stop offset="1" stop-color="#5b636a"/></radialGradient>' +
+    '<linearGradient id="' + id("thumb") + '" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#353b41"/><stop offset=".14" stop-color="#7f8890"/><stop offset=".38" stop-color="#e9eef1"/><stop offset=".52" stop-color="#f7f9fa"/><stop offset=".78" stop-color="#a2abb2"/><stop offset="1" stop-color="#3a4046"/></linearGradient>' +
+    '<linearGradient id="' + id("thumbv") + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".25"/><stop offset=".5" stop-color="#ffffff" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".35"/></linearGradient>' +
+    '<filter id="' + id("blur") + '" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter>' +
+    '<filter id="' + id("soft") + '" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation=".8"/></filter>' +
+    '<filter id="' + id("shadow") + '" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="12"/></filter>' +
+    '<filter id="' + id("glow") + '" x="-300%" y="-300%" width="700%" height="700%"><feGaussianBlur stdDeviation="2.4"/></filter>' +
+    '<filter id="' + id("grain") + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .5 0"/></filter>' +
+    '<clipPath id="' + id("clip") + '"><path d="' + V.outline + '"/></clipPath>' +
+    "</defs>";
+  const highlight = (cx, cy, w, rot) => '<rect x="' + (cx - w / 2 + 6) + '" y="' + (cy - 6) + '" width="' + (w - 12) + '" height="2" rx="1" fill="#ffffff" opacity=".16" transform="rotate(' + rot + " " + cx + " " + cy + ')"/>';
+  return defs +
+    '<ellipse cx="280" cy="306" rx="236" ry="22" fill="var(--drop)" filter="' + url("shadow") + '"/>' +
+    '<path d="' + V.outline + '" fill="' + url("side") + '"/>' +
+    '<g clip-path="' + url("clip") + '">' +
+      '<path d="' + V.outline + '" fill="' + url("front") + '"/>' +
+      '<path d="' + V.top + '" fill="' + url("top") + '"/>' +
+      '<path d="' + V.shoulder + '" fill="none" stroke="#ffffff" stroke-opacity=".32" stroke-width="5" filter="' + url("blur") + '"/>' +
+      '<path d="' + V.topEdge + '" fill="none" stroke="#ffffff" stroke-opacity=".28" stroke-width="3" filter="' + url("blur") + '"/>' +
+      '<path d="' + V.shelf + '" fill="' + url("shelf") + '"/>' +
+      '<path d="' + V.shelfTop + '" fill="none" stroke="#ffffff" stroke-opacity=".14" stroke-width="2"/>' +
+      '<path d="' + V.sole + '" fill="#090b0c"/>' +
+      '<rect x="0" y="0" width="560" height="360" filter="' + url("grain") + '" opacity=".14" style="mix-blend-mode:overlay"/>' +
+    "</g>" +
+    '<path d="' + V.shoulder + '" fill="none" stroke="#0b0d0f" stroke-opacity=".55" stroke-width="1.2"/>' +
+    '<path d="' + V.seam + '" fill="none" stroke="#0a0c0e" stroke-width="2.4"/>' +
+    '<path d="' + V.seam + '" fill="none" stroke="#ffffff" stroke-opacity=".1" stroke-width="1.2" transform="translate(-2 0)"/>' +
+    '<path d="' + V.split + '" fill="none" stroke="#0a0c0e" stroke-width="2.2"/>' +
+    part("", P.smartshift, ' fill="' + url("rubber") + '" stroke="#0a0c0e" stroke-width="1.3"') +
+    drawWheel(id, url) +
+    drawThumbwheel(url) +
+    part("", P.back, ' fill="' + url("rubber") + '" stroke="#0a0c0e" stroke-width="1.4"') + highlight(P.back[0], P.back[1], P.back[2], P.back[5]) +
+    part("", P.forward, ' fill="' + url("rubber") + '" stroke="#0a0c0e" stroke-width="1.4"') + highlight(P.forward[0], P.forward[1], P.forward[2], P.forward[5]) +
+    '<ellipse cx="' + GESTURE[0] + '" cy="' + GESTURE[1] + '" rx="' + GESTURE[2] + '" ry="' + GESTURE[3] + '" fill="none" stroke="#000000" stroke-opacity=".4" stroke-width="1.2"/>' +
+    '<ellipse cx="' + GESTURE[0] + '" cy="' + (GESTURE[1] + 1.2) + '" rx="' + GESTURE[2] + '" ry="' + GESTURE[3] + '" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="1"/>' +
+    '<circle cx="' + LED[0] + '" cy="' + LED[1] + '" r="5" fill="#53e09a" opacity=".55" filter="' + url("glow") + '"/><circle cx="' + LED[0] + '" cy="' + LED[1] + '" r="1.8" fill="#a3f6cb"/>';
+}
+
+function mouseSvg(withStage) {
+  if (!withStage) return '<svg viewBox="30 50 520 290" role="img" aria-label="Ilustração do MX Master 3S">' + drawMouse("mini") + "</svg>";
+  const OX = 200, OY = 70, W = 960, LW = 170, LH = 50;
+  // Cada fileira fica perto dos pontos que descreve: linhas curtas e sem cruzamentos.
+  const COLS = { T: [60, 240, 420, 600], B: [150, 330, 510, 690] };
+  // [id, ponto no mouse, fileira (T = em cima, B = embaixo), coluna 0–3, cotovelo opcional]. Ordem escolhida para as
+  // linhas não se cruzarem. A roda lateral fica acima de Voltar/Avançar: a linha dela sai para a direita (para trás
+  // do mouse) antes de descer, senão passaria por cima de Voltar e do botão de gestos.
+  const spots = [
+    ["50", 98, 176, "T", 0], ["51", 102, 143, "T", 1], ["52", 172, 121, "T", 2], ["c4", 216, 119, "T", 3],
+    ["56", 193, 222, "B", 0], ["c3", 250, 258, "B", 1], ["53", 261, 222, "B", 2], ["thumb", 256, 193, "B", 3, [318, 193]],
+  ];
+  const c = state.config;
+  const value = (id) => {
+    if (id === "50" || id === "51") return "Não remapeável";
+    if (id === "thumb") return short(c.thumb.right) + " · " + short(c.thumb.left);
+    return short(c.buttons[id], ORIGINAL[id]);
+  };
+  let callouts = "", hotspots = "";
+  for (const [id, mx, my, row, col, via] of spots) {
+    const x = OX + mx, y = OY + my;
+    const lx = COLS[row][col], ly = row === "T" ? 12 : 438;
+    const ax = lx + LW / 2, ay = row === "T" ? ly + LH : ly;
+    const sel = state.selected === id && state.tab === "buttons" ? " is-selected" : "";
+    const val = value(id);
+    const elbow = via ? " L" + (OX + via[0]) + "," + (OY + via[1]) : "";
+    callouts += '<path class="leader" d="M' + x + "," + y + elbow + " L" + ax + "," + ay + '"/>' +
+      '<g class="callout' + sel + '" data-select="' + id + '" style="cursor:pointer"><rect x="' + lx + '" y="' + ly + '" width="' + LW + '" height="' + LH + '" rx="10"/>' +
+      '<text class="c-name" x="' + (lx + 12) + '" y="' + (ly + 19) + '">' + esc(BUTTONS[id].name) + "</text>" +
+      '<text class="c-value" x="' + (lx + 12) + '" y="' + (ly + 38) + '">' + esc(val.length > 21 ? val.slice(0, 20) + "…" : val) + "</text></g>";
+    hotspots += '<g class="hs' + sel + (BUTTONS[id].locked ? " is-locked" : "") + '" data-select="' + id + '" tabindex="0" role="button" aria-label="' + esc(BUTTONS[id].name + ": " + val) + '">' +
+      '<circle class="ring" cx="' + x + '" cy="' + y + '" r="12"/><circle class="core" cx="' + x + '" cy="' + y + '" r="6.5"/></g>';
+  }
+  return '<svg viewBox="0 0 ' + W + ' 500" aria-label="MX Master 3S em perspectiva com os botões configuráveis">' + callouts +
+    '<g transform="translate(' + OX + "," + OY + ')">' + drawMouse("stage") + "</g>" + hotspots + "</svg>";
+}
+
+// ---------- Logo escolhido: Constelação (a refinar) ----------
+const LOGOS = {
+  constelacao: {
+    name: "Constelação",
+    why: "Quatro dispositivos ligados formam o N: o hub como uma rede de nós. O nó ciano é o computador.",
+    mark: (fg, ac) => '<svg viewBox="0 0 40 40" class="mark" aria-hidden="true"><path d="M10,31 L10,9 L30,31 L30,9" fill="none" stroke="' + fg + '" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="10" cy="31" r="4.2" fill="' + fg + '"/><circle cx="10" cy="9" r="4.2" fill="' + fg + '"/><circle cx="30" cy="31" r="4.2" fill="' + fg + '"/><circle cx="30" cy="9" r="5.2" fill="' + ac + '"/></svg>',
+  },
+};
+const WX = (ac) => '<svg class="wx" viewBox="0 0 20 20" aria-hidden="true"><path d="M3,3 L17,17" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M17,3 L3,17" stroke="' + ac + '" stroke-width="4" stroke-linecap="round"/></svg>';
+const wordmark = (ac) => '<span class="wordmark" aria-label="nexo">ne' + WX(ac) + "o</span>";
+
+function renderIdentity() {
+  const lg = LOGOS[state.logo];
+  $("#identity").innerHTML =
+    '<div class="id-card"><span class="id-card__label">Logo · ' + esc(lg.name) + '</span><div class="lockup">' + lg.mark("var(--fg)", "var(--accent)") + wordmark("var(--accent)") + "</div><p>" + esc(lg.why) + "</p></div>" +
+    '<div class="id-card"><span class="id-card__label">Ícone do app</span><div class="appicon-demo"><span class="squircle">' + lg.mark("#e8edf2", "#3fc9d6") + '</span><p>Menu de aplicativos e Dock do Ubuntu</p></div></div>' +
+    '<div class="id-card"><span class="id-card__label">Bandeja (16 px)</span><span class="tray">' + lg.mark("#e8edf2", "#3fc9d6") + "MX Master 3S · 75%</span><p>Ícone sobre o painel escuro do GNOME</p></div>" +
+    '<div class="id-card"><span class="id-card__label">Wordmark</span><div style="color:var(--fg)">' + wordmark("var(--accent)") + '</div><p>Bricolage Grotesque com o “x” como dois traços que se cruzam.</p></div>';
+  $("#brand").innerHTML = lg.mark("var(--fg)", "var(--accent)") + wordmark("var(--accent)");
+}
+
+// ---------- Renderização ----------
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const keycaps = (keys) => '<span class="keys">' + keys.map((k) => "<kbd>" + esc(keyLabel(k)) + "</kbd>").join('<span class="plus">+</span>') + "</span>";
+
+function renderHome() {
+  const c = state.config, eff = effectiveDpi(c.dpi) ?? 0;
+  const pos = Math.max(0, ((eff - DPI_RANGE.min) / (DPI_RANGE.max - DPI_RANGE.min)) * 100);
+  return '<div class="home__head"><div><h1>Seus dispositivos</h1><p>2 conectados por Bluetooth · configurações aplicadas pelo logid</p></div></div>' +
+    '<div class="bento">' +
+    '<button type="button" class="tile tile--device" data-open="device">' +
+      '<span class="tile__label">Mouse · Bluetooth</span><h2>MX Master 3S</h2>' +
+      '<div class="pills"><span class="pill pill--accent">Perfil Padrão</span><span class="pill">8 botões · 6 remapeáveis</span></div>' +
+      '<div class="device-mini">' + mouseSvg(false) + "</div>" +
+      '<span class="cta">Configurar</span></button>' +
+    '<div class="tile"><span class="tile__label">Bateria</span>' +
+      '<div style="display:flex;align-items:center;gap:12px"><svg class="battery-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--surface-2)" stroke-width="8"/><circle cx="32" cy="32" r="26" fill="none" stroke="var(--accent)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + (2 * Math.PI * 26 * 0.75).toFixed(1) + ' 999" transform="rotate(-90 32 32)"/></svg>' +
+      '<span class="tile__value">75<small>%</small></span></div><span class="tile__foot">Descarregando · via UPower</span></div>' +
+    '<button type="button" class="tile" data-open="device" data-tab="pointer"><span class="tile__label">Velocidade do ponteiro</span>' +
+      '<span class="tile__value">' + (eff || "—") + "<small>DPI</small></span>" +
+      '<div class="meter" aria-hidden="true"><i style="width:' + pos.toFixed(1) + '%"></i></div><span class="tile__foot">Faixa do sensor: 200–8000, passo 50</span></button>' +
+    '<button type="button" class="tile" data-open="device" data-tab="scroll"><span class="tile__label">SmartShift</span>' +
+      '<span class="tile__value" style="font-size:26px">' + (c.smartshift.on ? "Ligado" : "Desligado") + "</span>" +
+      '<span class="tile__foot">Limiar ' + c.smartshift.threshold + " · roda livre acima dessa velocidade</span></button>" +
+    '<div class="tile"><span class="tile__label">Verificação</span><span class="tile__value" style="font-size:26px">' + (issues().length ? issues().length + " problemas" : "Tudo certo") + "</span>" +
+      '<span class="tile__foot">' + (issues().length ? "Corrija antes de aplicar" : "0 erros · 0 avisos no logid.cfg") + "</span></div>" +
+    '<div class="tile tile--wide tile--muted"><span class="tile__label">Fones · Bluetooth</span>' +
+      '<div class="buds"><svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true"><ellipse cx="18" cy="27" rx="10" ry="13" fill="var(--line)"/><ellipse cx="36" cy="27" rx="10" ry="13" fill="var(--line)"/></svg>' +
+      '<div><h3 style="font-size:20px">Galaxy Buds3 Pro</h3><p class="hint">Bateria, ANC e equalizador chegam com o módulo de áudio (v1.1 e v2).</p></div></div>' +
+      '<div class="pills"><span class="pill pill--warn">Em breve</span><span class="pill">Pareado</span></div></div>' +
+    '<button type="button" class="tile tile--add" data-toast="Adicionar dispositivo chega com a camada genérica de Bluetooth (v1.1).">＋ Adicionar dispositivo</button>' +
+    "</div>";
+}
+
+function actionCard(path, fallback) {
+  const a = getAt(path), d = describe(a, fallback);
+  return '<button type="button" class="action-card" data-pick="' + path + '"><span class="action-card__text"><span class="action-card__title">' + esc(d.title) + "</span>" +
+    (d.keys ? keycaps(d.keys) : d.sub ? '<span class="hint">' + esc(d.sub) + "</span>" : "") + '</span><span class="change">Alterar</span></button>';
+}
+
+function renderButtonPanel() {
+  const id = state.selected, info = BUTTONS[id];
+  let html = "<div><h2>" + esc(info.name) + '</h2><p class="panel__sub">' + (info.cid !== undefined ? '<span class="mono">cid 0x' + info.cid.toString(16) + "</span> · " : "") + (info.locked ? "fixo" : id === "thumb" ? "roda horizontal de polegar" : "remapeável · aceita gestos") + "</p></div>";
+  if (info.locked) {
+    return html + '<div class="locked"><span aria-hidden="true">🔒</span><span>O mouse não permite desviar este clique (Remappable = false no logid). Ele sempre funciona como clique normal.</span></div>';
+  }
+  if (id === "thumb") {
+    const t = state.config.thumb;
+    return html +
+      '<div class="field"><span class="field__label">Girar para a direita</span>' + actionCard("thumb.right") + "</div>" +
+      '<div class="field"><span class="field__label">Girar para a esquerda</span>' + actionCard("thumb.left") + "</div>" +
+      '<div class="field"><div class="field__row"><span class="field__label">Sensibilidade</span><span class="mono">' + t.interval + '</span></div>' +
+      '<input id="interval" type="range" min="1" max="10" step="1" value="' + t.interval + '" aria-label="Sensibilidade da roda lateral">' +
+      '<p class="hint">1 = dispara a cada pequeno giro. O Nexo nunca grava 0: no logid isso derruba o daemon.</p></div>' +
+      '<div class="field__row"><span class="field__label">Inverter direção</span><button type="button" class="toggle" role="switch" aria-label="Inverter direção" aria-checked="' + t.invert + '" data-toggle="thumb.invert"></button></div>';
+  }
+  const action = state.config.buttons[id];
+  html += '<div class="field"><span class="field__label">Ação</span>' + actionCard(id, ORIGINAL[id]) + "</div>";
+  if (action && action.type === "gestures") {
+    const cell = (dir, arrow, label) => {
+      const a = action.gestures[dir], d = describe(a, "Nada");
+      return '<button type="button" data-pick="' + id + "." + dir + '"' + (dir === "none" ? ' class="center"' : "") + '><span class="arrow">' + arrow + '</span><span class="t">' + esc(d.title) + "</span>" +
+        (d.keys ? keycaps(d.keys) : "") + '<span class="hint">' + label + "</span></button>";
+    };
+    html += '<div class="field"><span class="field__label">Segure o botão e mova o mouse</span><div class="pad">' +
+      '<span class="empty"></span>' + cell("up", "↑", "para cima") + '<span class="empty"></span>' +
+      cell("left", "←", "para a esquerda") + cell("none", "●", "só clicar") + cell("right", "→", "para a direita") +
+      '<span class="empty"></span>' + cell("down", "↓", "para baixo") + '<span class="empty"></span></div>' +
+      '<p class="hint">Cada gesto dispara ao soltar o botão (modo OnRelease).</p></div>';
+  }
+  return html;
+}
+
+function renderPicker() {
+  const path = state.picker, isButton = !path.includes(".") && path !== "thumb";
+  const cap = state.capture;
+  let html = '<button type="button" class="picker__back" data-close-picker>← Voltar</button>' +
+    "<div><h2>Escolher ação</h2><p class=\"panel__sub\">" + esc(path.startsWith("thumb") ? "Roda lateral" : BUTTONS[path.split(".")[0]].name) + "</p></div>" +
+    '<div class="capture" tabindex="0" id="capture" role="textbox" aria-label="Gravar atalho: pressione a combinação de teclas">' +
+      '<span class="capture__title">' + (cap && cap.length ? keycaps(cap) : "Gravar atalho: clique aqui e pressione as teclas") + "</span>" +
+      '<span class="capture__detail">' + (cap && cap.length ? "Posição física: " + cap.map((k) => '<span class="mono">' + esc(keyName(k)) + "</span>").join(" + ") : "O Nexo grava a posição física da tecla e mostra o rótulo do seu layout (no ABNT2, Ç = KEY_SEMICOLON).") + "</span>" +
+      (cap && cap.length ? '<span><button type="button" class="btn btn--primary" data-use-capture>Usar este atalho</button></span>' : "") +
+    "</div>";
+  if (isButton) {
+    html += '<div><div class="group__title">Botão</div><div class="options">' +
+      (ORIGINAL[path] ? '<button type="button" class="option" data-set="original">Função original (' + esc(ORIGINAL[path]) + ")</button>" : "") +
+      '<button type="button" class="option" data-set="gestures">Gestos (cinco direções)</button></div></div>';
+  }
+  for (const g of PRESETS) {
+    html += '<div><div class="group__title">' + esc(g.group) + '</div><div class="options">' +
+      g.items.map(([t, ks], i) => '<button type="button" class="option" data-preset="' + esc(g.group) + "|" + i + '"><span>' + esc(t) + "</span>" + keycaps(ks) + "</button>").join("") + "</div></div>";
+  }
+  html += '<div><div class="group__title">Mouse</div><div class="options">' +
+    MOUSE_ACTIONS.map((m, i) => '<button type="button" class="option" data-mouse="' + i + '"><span>' + esc(m.title) + "</span>" + (m.badge ? '<span class="badge">' + m.badge + "</span>" : "") + "</button>").join("") +
+    '<button type="button" class="option" disabled style="color:var(--muted);cursor:not-allowed"><span>Trocar de perfil</span><span class="hint">crie outro perfil antes</span></button></div></div>';
+  return html;
+}
+
+function renderPointerPanel() {
+  const v = state.config.dpi, eff = effectiveDpi(v);
+  const note = eff === null ? '<p class="hint hint--warn">0 mantém o DPI atual do mouse.</p>' :
+    eff !== v ? '<p class="hint hint--warn">O logid vai usar <b>' + eff + "</b>: o sensor aceita 200–8000 em passos de 50.</p>" :
+    '<p class="hint">Valor aceito exatamente pelo sensor.</p>';
+  return "<div><h2>Ponteiro</h2><p class=\"panel__sub\">Sensor de 1 eixo · faixa informada pelo logid</p></div>" +
+    '<div class="dpi-big">' + (eff ?? "—") + "<small>DPI</small></div>" +
+    '<div class="field"><input id="dpi-range" type="range" min="200" max="8000" step="50" value="' + (eff ?? 1600) + '" aria-label="DPI">' +
+    '<div class="scale"><span>200</span><span>2000</span><span>4000</span><span>6000</span><span>8000</span></div></div>' +
+    '<div class="field"><div class="field__row"><label class="field__label" for="dpi-num">Valor exato</label><input class="num" id="dpi-num" type="number" inputmode="numeric" value="' + v + '"></div>' + note + "</div>" +
+    '<div class="field"><span class="field__label">Atalhos</span><div class="presets">' +
+    [800, 1000, 1600, 2400, 3200].map((d) => '<button type="button" data-dpi="' + d + '" aria-pressed="' + (eff === d) + '">' + d + "</button>").join("") + "</div></div>" +
+    '<div class="check"><span class="sev sev--warn">Nota</span><span>Trocar de DPI com um botão: o CycleDPI do logid 0.3.5 não funciona. Na versão final o Nexo fará isso com perfis.</span></div>';
+}
+
+function renderScrollPanel() {
+  const s = state.config.smartshift, c = state.config;
+  return "<div><h2>Rolagem</h2><p class=\"panel__sub\">Roda principal com SmartShift</p></div>" +
+    '<div class="field__row"><span class="field__label">SmartShift</span><button type="button" class="toggle" role="switch" aria-label="SmartShift" aria-checked="' + s.on + '" data-toggle="smartshift.on"></button></div>' +
+    '<div class="field"' + (s.on ? "" : ' style="opacity:.5"') + '><div class="field__row"><span class="field__label">Limiar de roda livre</span><span class="mono">' + s.threshold + "</span></div>" +
+    '<input id="threshold" type="range" min="1" max="255" value="' + s.threshold + '" aria-label="Limiar do SmartShift"' + (s.on ? "" : " disabled") + ">" +
+    '<p class="hint">Quanto menor, mais fácil a roda soltar ao girar rápido (1–255).</p></div>' +
+    '<p class="hint">Força da catraca (torque): este mouse não suporta pelo logid.</p>' +
+    '<div class="field__row"><span class="field__label">Rolagem precisa (hi-res)</span><button type="button" class="toggle" role="switch" aria-label="Rolagem precisa" aria-checked="' + c.hires + '" data-toggle="hires"></button></div>' +
+    '<div class="field__row"><span class="field__label">Inverter rolagem</span><button type="button" class="toggle" role="switch" aria-label="Inverter rolagem" aria-checked="' + c.invert + '" data-toggle="invert"></button></div>';
+}
+
+function renderAdvancedPanel() {
+  const list = issues();
+  return "<div><h2>Avançado</h2><p class=\"panel__sub\">Verificação e arquivo gerado</p></div>" +
+    '<div class="field"><span class="field__label">Verificação da configuração</span>' +
+    (list.length ? list.map((i) => '<div class="check"><span class="sev sev--' + i.sev + '">' + (i.sev === "err" ? "Erro" : "Aviso") + '</span><span><b class="mono">' + esc(i.title) + "</b>" + esc(i.text) + "</span></div>").join("") :
+      '<div class="check"><span class="sev sev--ok">OK</span><span>Nenhum problema: o logid vai aplicar tudo exatamente como mostrado.</span></div>') +
+    '<div class="field__row"><span class="hint">Simular uma config com problemas</span><button type="button" class="toggle" role="switch" aria-label="Simular problemas" aria-checked="' + state.simulate + '" data-toggle="simulate"></button></div></div>' +
+    '<div class="field"><div class="field__row"><span class="field__label">/etc/logid.cfg que será gravado</span><button type="button" class="btn" data-show-cfg>' + (state.showCfg ? "Ocultar" : "Mostrar") + "</button></div>" +
+    (state.showCfg ? '<pre class="cfg">' + esc(writeCfg(state.config)) + "</pre>" : "") + "</div>";
+}
+
+function renderDevice() {
+  const tab = state.tab;
+  const tabs = [["buttons", "Botões"], ["scroll", "Rolagem"], ["pointer", "Ponteiro"], ["advanced", "Avançado"]];
+  const panel = state.picker ? renderPicker() : tab === "buttons" ? renderButtonPanel() : tab === "pointer" ? renderPointerPanel() : tab === "scroll" ? renderScrollPanel() : renderAdvancedPanel();
+  return '<div class="device__head"><button type="button" class="back" data-nav="home">← Dispositivos</button><h1>MX Master 3S</h1>' +
+    '<span class="pill">Bateria 75%</span><span class="pill">Bluetooth</span>' +
+    '<div class="profiles" role="group" aria-label="Perfis"><button type="button" aria-pressed="true">Padrão</button><button type="button" disabled title="Perfis múltiplos chegam na Fase 5">＋ Novo perfil</button></div></div>' +
+    '<div class="device__body"><section class="stage" aria-label="Palco do dispositivo"><div class="tabs" role="tablist">' +
+    tabs.map(([k, l]) => '<button type="button" role="tab" data-tab="' + k + '" aria-selected="' + (tab === k) + '">' + l + "</button>").join("") + "</div>" +
+    mouseSvg(true) +
+    '<div class="chips">' + Object.keys(BUTTONS).map((id) => '<button type="button" data-select="' + id + '" aria-pressed="' + (state.selected === id && tab === "buttons") + '">' + esc(BUTTONS[id].name) + "</button>").join("") + "</div>" +
+    '<p class="stage__note">Ilustração original do Nexo. Clique num ponto para configurar o botão.</p></section>' +
+    '<aside class="panel" aria-live="polite">' + panel + "</aside></div>";
+}
+
+function renderApps() {
+  return '<div class="home__head"><div><h1>Perfis por aplicativo</h1><p>O perfil do mouse troca sozinho conforme o app em foco, sem pedir senha.</p></div></div>' +
+    '<div class="rules"><span class="example-tag">Exemplo de como ficará (Fase 6)</span>' +
+    [["C", "Visual Studio Code", "Código"], ["F", "Firefox", "Navegação"], ["G", "GIMP", "Precisão (DPI 800)"]].map(([i, app, p]) =>
+      '<div class="rule"><span class="rule__app"><span class="appmono">' + i + "</span><span>" + app + '</span></span><span class="hint">usa o perfil</span><span class="pill pill--accent" style="justify-self:start">' + p + "</span></div>").join("") +
+    '<div class="rule"><span class="rule__app"><span class="appmono" style="background:var(--muted)">*</span><span>Qualquer outro app</span></span><span class="hint">usa o perfil</span><span class="pill" style="justify-self:start">Padrão</span></div>' +
+    '<p class="hint">Requer a extensão do GNOME “nexo-focus”: no Wayland só o GNOME Shell sabe qual janela está em foco.</p></div>';
+}
+
+function renderApplyBar() {
+  const bar = $("#applybar"), n = changeCount(), errs = issues().filter((i) => i.sev === "err").length;
+  if (state.applying !== null) {
+    const steps = ["Autorização (senha 1× por sessão)", "Backup do logid.cfg atual", "Gravação atômica", "Reinício do logid", "Verificação"];
+    bar.hidden = false;
+    bar.innerHTML = '<div class="steps">' + steps.map((s, i) => '<span class="' + (i < state.applying ? "done" : i === state.applying ? "now" : "") + '">' + (i < state.applying ? "✓ " : "") + s + "</span>").join("") + "</div>";
+    return;
+  }
+  if (state.toast) {
+    bar.hidden = false;
+    bar.innerHTML = '<div class="applybar__msg"><span class="dot"></span><span>' + esc(state.toast) + '</span></div><button type="button" class="btn" data-dismiss>Fechar</button>';
+    return;
+  }
+  if (!n && !errs) { bar.hidden = true; bar.innerHTML = ""; return; }
+  bar.hidden = false;
+  bar.innerHTML = '<div class="applybar__msg">' + (errs ? '<span class="sev sev--err">Bloqueado</span><span>' + errs + " erro(s) impedem aplicar. Veja a aba Avançado.</span>" :
+    '<span class="count">' + n + " alteraç" + (n === 1 ? "ão" : "ões") + '</span><span class="hint">ainda não aplicada' + (n === 1 ? "" : "s") + " ao mouse</span>") + "</div>" +
+    '<button type="button" class="btn" data-discard' + (n ? "" : " disabled") + '>Descartar</button><button type="button" class="btn btn--primary" data-apply' + (n && !errs ? "" : " disabled") + ">Aplicar</button>";
+}
+
+function render() {
+  $("#content").innerHTML = state.screen === "home" ? renderHome() : state.screen === "apps" ? renderApps() : renderDevice();
+  document.querySelectorAll(".nav [data-nav]").forEach((b) => b.setAttribute("aria-current", (b.dataset.nav === state.screen || (b.dataset.nav === "home" && state.screen === "device")) ? "page" : "false"));
+  renderApplyBar();
+  const cap = $("#capture");
+  if (cap && state.capture) cap.focus();
+}
+
+// ---------- Interação ----------
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("button, [data-select], [data-open]");
+  if (!t) return;
+  const d = t.dataset;
+  if (d.themeChoice) return setTheme(d.themeChoice);
+  if (d.nav) { state.screen = d.nav; state.picker = null; return render(); }
+  if (d.open) { state.screen = "device"; state.tab = d.tab || "buttons"; state.picker = null; return render(); }
+  if (d.select) { state.selected = d.select; state.tab = "buttons"; state.picker = null; return render(); }
+  if (d.tab) { state.tab = d.tab; state.picker = null; return render(); }
+  if (d.pick) { state.picker = d.pick; state.capture = null; return render(); }
+  if (d.closePicker !== undefined) { state.picker = null; return render(); }
+  if (d.set === "original") { setAt(state.picker, null); state.picker = null; return render(); }
+  if (d.set === "gestures") {
+    setAt(state.picker, { type: "gestures", gestures: { none: { type: "none" }, up: null, down: null, left: null, right: null } });
+    state.picker = null; return render();
+  }
+  if (d.preset) {
+    const [group, i] = d.preset.split("|"), g = PRESETS.find((x) => x.group === group);
+    setAt(state.picker, { type: "keypress", keys: g.items[+i][1].slice() });
+    state.picker = null; return render();
+  }
+  if (d.mouse) { setAt(state.picker, clone(MOUSE_ACTIONS[+d.mouse].action)); state.picker = null; return render(); }
+  if (d.useCapture !== undefined) { setAt(state.picker, { type: "keypress", keys: state.capture }); state.picker = null; state.capture = null; return render(); }
+  if (d.toggle) {
+    const c = state.config;
+    if (d.toggle === "smartshift.on") c.smartshift.on = !c.smartshift.on;
+    else if (d.toggle === "thumb.invert") c.thumb.invert = !c.thumb.invert;
+    else if (d.toggle === "simulate") state.simulate = !state.simulate;
+    else c[d.toggle] = !c[d.toggle];
+    return render();
+  }
+  if (d.dpi) { state.config.dpi = +d.dpi; return render(); }
+  if (d.showCfg !== undefined) { state.showCfg = !state.showCfg; return render(); }
+  if (d.discard !== undefined) { state.config = clone(state.applied); state.picker = null; return render(); }
+  if (d.apply !== undefined) return apply();
+  if (d.dismiss !== undefined) { state.toast = ""; return render(); }
+  if (d.toast) { state.toast = d.toast; return render(); }
+});
+document.addEventListener("keydown", (e) => {
+  const hs = e.target.closest && e.target.closest('.hs[role="button"]');
+  if (hs && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); state.selected = hs.dataset.select; state.tab = "buttons"; state.picker = null; render(); return; }
+  if (e.target.id !== "capture") return;
+  if (e.key === "Tab" && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey && !(state.capture && state.capture.length)) return;
+  e.preventDefault();
+  const name = CODE_TO_EVDEV[e.code];
+  if (!name) return;
+  const label = /^Key[A-Z]$|^Digit\d$/.test(e.code) || MODIFIERS.has(name) || KEY_LABEL[name] ? undefined : (e.key && e.key.length === 1 ? e.key.toUpperCase() : undefined);
+  const mods = [];
+  if (e.ctrlKey && name !== "KEY_LEFTCTRL" && name !== "KEY_RIGHTCTRL") mods.push("KEY_LEFTCTRL");
+  if (e.shiftKey && name !== "KEY_LEFTSHIFT" && name !== "KEY_RIGHTSHIFT") mods.push("KEY_LEFTSHIFT");
+  if (e.altKey && name !== "KEY_LEFTALT" && name !== "KEY_RIGHTALT") mods.push("KEY_LEFTALT");
+  if (e.metaKey && name !== "KEY_LEFTMETA" && name !== "KEY_RIGHTMETA") mods.push("KEY_LEFTMETA");
+  state.capture = [...mods, label ? { name, label } : name];
+  render();
+});
+document.addEventListener("input", (e) => {
+  const id = e.target.id, v = +e.target.value;
+  if (id === "dpi-range") { state.config.dpi = v; return render(); }
+  if (id === "dpi-num") {
+    state.config.dpi = Number.isFinite(v) ? Math.trunc(v) : 0; renderApplyBar();
+    const big = $(".dpi-big"), eff = effectiveDpi(state.config.dpi);
+    if (big) big.innerHTML = (eff ?? "—") + "<small>DPI</small>";
+    return;
+  }
+  if (id === "threshold") { state.config.smartshift.threshold = v; return render(); }
+  if (id === "interval") { state.config.thumb.interval = Math.max(1, v); return render(); }
+});
+document.addEventListener("change", (e) => { if (e.target.id === "dpi-num") render(); });
+
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function apply() {
+  state.applying = 0; state.picker = null; render();
+  const tick = () => {
+    state.applying += 1;
+    if (state.applying >= 5) {
+      state.applying = null; state.applied = clone(state.config);
+      state.toast = "Aplicado. O logid reiniciou em 0,4 s e o mouse já usa a nova configuração.";
+      return render();
+    }
+    renderApplyBar(); setTimeout(tick, reduced ? 120 : 520);
+  };
+  setTimeout(tick, reduced ? 120 : 520);
+}
+
+// ---------- Preferências locais deste navegador ----------
+const root = document.documentElement;
+function store(k, v) { try { localStorage.setItem(k, v); } catch (_) { /* armazenamento indisponível */ } }
+function load(k) { try { return localStorage.getItem(k); } catch (_) { return null; } }
+function pressed(sel, key, value) { document.querySelectorAll(sel).forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[key] === value))); }
+function setTheme(t) {
+  if (t === "system") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", t);
+  pressed("[data-theme-choice]", "themeChoice", t);
+  store("nexo-theme", t);
+}
+setTheme(load("nexo-theme") || "system");
+renderIdentity();
+render();
+</script>
