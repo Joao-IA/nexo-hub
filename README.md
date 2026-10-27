@@ -29,7 +29,8 @@ mice such as the **MX Master 3S** can be configured without ever editing `/etc/l
 | `nexo-helper` | Dart (AOT)            | root, D-Bus service | Privileged operations, guarded by polkit       |
 | `nexo-focus`  | GNOME Shell extension | inside the Shell    | Reports the focused app (Wayland requirement)  |
 
-Full documentation (in Portuguese) lives in [`docs/`](docs/README.md).
+Detailed design documentation (architecture, decision records, runbooks) is kept privately by the
+maintainer and is not part of this repository.
 
 ## Roadmap
 

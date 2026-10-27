@@ -30,7 +30,8 @@ configurar mouses Logitech como o **MX Master 3S** sem nunca editar o `/etc/logi
 | `nexo-helper` | Dart (AOT)            | root, serviço D-Bus     | Operações privilegiadas, protegidas por polkit |
 | `nexo-focus`  | Extensão GNOME Shell  | dentro do Shell         | Informa o app em foco (exigência do Wayland) |
 
-A documentação completa está em [`docs/`](docs/README.md).
+A documentação detalhada de projeto (arquitetura, registros de decisão, roteiros) é mantida de forma
+privada pelo mantenedor e não faz parte deste repositório.
 
 ## Roadmap
 

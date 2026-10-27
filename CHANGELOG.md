@@ -29,6 +29,10 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
   reinício do logid (~0,4 s), semântica de `target` no scroll e problema de confiabilidade do
   `ChangeHost` via Bluetooth (em aberto).
 
+### Alterado
+- A documentação de projeto (`docs/`) passou a ser mantida de forma privada pelo mantenedor, fora do
+  repositório público. READMEs e spikes não apontam mais para ela.
+
 ### Corrigido
 - `docs/spikes.md`: comandos do S2 usavam marcadores `<...>`, que o zsh interpreta como
   redirecionamento; agora usam a variável `$CAMINHO`.
