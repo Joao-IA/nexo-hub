@@ -1,0 +1,67 @@
+# Continuous integration. Every job must stay green on `main`.
+# Steps that depend on code that does not exist yet are skipped automatically
+# (hashFiles guards) and start running as soon as the files appear.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docs:
+    name: Documentation links
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      # ubuntu-24.04 ships Python 3; the checker uses only the standard library.
+      - run: python3 -I tool/check_docs_links.py
+
+  dart:
+    name: Dart & Flutter
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Read pinned Flutter version (.fvmrc)
+        id: pin
+        run: echo "flutter=$(jq -r .flutter .fvmrc)" >> "$GITHUB_OUTPUT"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ steps.pin.outputs.flutter }}
+          channel: stable
+          cache: true
+
+      - name: Flutter version matches .fvmrc
+        run: tool/check_flutter_version.sh
+
+      - name: Resolve workspace
+        if: hashFiles('pubspec.yaml') != ''
+        run: dart pub get
+
+      - name: Format
+        if: hashFiles('pubspec.yaml') != ''
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        if: hashFiles('pubspec.yaml') != ''
+        run: dart analyze --fatal-infos
+
+      - name: Test (Dart packages)
+        if: hashFiles('packages/*/test/**/*_test.dart') != ''
+        run: |
+          for pkg in packages/*/; do
+            if [ -d "$pkg/test" ]; then
+              echo "::group::$pkg"
+              (cd "$pkg" && dart test)
+              echo "::endgroup::"
+            fi
+          done

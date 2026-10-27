@@ -1,0 +1,7 @@
+{
+  "uuid": "nexo-focus-spike@joao-ia.github.io",
+  "name": "Nexo focus (spike S4)",
+  "description": "Throwaway spike: publishes the focused application id on the session bus.",
+  "shell-version": ["50"],
+  "url": "https://github.com/Joao-IA/nexo-hub"
+}

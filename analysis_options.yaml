@@ -1,0 +1,42 @@
+# Shared static-analysis settings for every Dart/Flutter package in the repo.
+# Packages include this file (`include: ../../analysis_options.yaml`) and may
+# only make it stricter. See docs/03-desenvolvimento/convencoes.md.
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # Treat these as hard errors: they hide real bugs in config handling.
+    missing_return: error
+    dead_code: error
+    unused_import: error
+    unused_local_variable: error
+    invalid_annotation_target: error
+  exclude:
+    - "**/build/**"
+    - "**/*.g.dart"
+    - "spikes/**"
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_print
+    - avoid_slow_async_io
+    - cancel_subscriptions
+    - close_sinks
+    - directives_ordering
+    - only_throw_errors
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_fields
+    - prefer_final_locals
+    - prefer_single_quotes
+    - throw_in_finally
+    - unawaited_futures
+    - unnecessary_lambdas
+    - unnecessary_parenthesis
+    - use_super_parameters

@@ -1,0 +1,14 @@
+# Root of the Dart pub workspace (monorepo). Not a publishable package.
+# Each member package is listed under `workspace:` and declares
+# `resolution: workspace` in its own pubspec. All members share one
+# pubspec.lock. See docs/01-arquitetura/pacotes.md.
+name: nexohub_workspace
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace: []
+
+dev_dependencies:
+  lints: ^6.1.0

@@ -1,0 +1,24 @@
+# Changelog
+
+Todas as mudanças relevantes deste projeto são registradas aqui.
+
+O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o projeto adota
+[Versionamento Semântico](https://semver.org/lang/pt-BR/).
+
+## [Não lançado]
+
+### Adicionado
+- Fundação do repositório: licença GPL-3.0, READMEs (EN/PT-BR), `.gitignore`, `.editorconfig`,
+  recomendações de extensões do VS Code.
+- Workspace Dart (pub workspaces) na raiz, com análise estática estrita compartilhada
+  (`analysis_options.yaml`).
+- Versão do Flutter fixada em `.fvmrc` (3.47.8) e `tool/check_flutter_version.sh` (ADR-0008).
+- `tool/check_docs_links.py`: valida links e âncoras de toda a documentação.
+- Estrutura completa de documentação em `docs/`: visão geral, componentes, fluxos (diagramas de
+  sequência), pacotes, segurança, ADRs 0001–0008, referência do logid 0.3.5 com permalinks,
+  API D-Bus do logid, MX Master 3S, ambiente, convenções, depuração, testes, logs, troubleshooting,
+  recuperação manual, roteiros de manutenção, checklist manual e glossário.
+- Fixtures de configuração: config original do usuário (27/10/2026) e exemplo oficial do logiops.
+- Spikes da Fase 0: configs de perfis (S1), extensão de foco do GNOME 50 (S4) e configs de
+  Easy-Switch/scroll (S5), com procedimentos em `docs/spikes.md`.
+- Workflow de CI: links da documentação, versão do Flutter, format, analyze e testes Dart.

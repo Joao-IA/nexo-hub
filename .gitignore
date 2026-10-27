@@ -1,0 +1,35 @@
+# Dart / Flutter
+.dart_tool/
+.packages
+build/
+pubspec_overrides.yaml
+*.g.dart.incremental
+coverage/
+doc/api/
+
+# FVM (the pinned version lives in .fvmrc; the SDK symlink is local)
+.fvm/flutter_sdk
+.fvm/versions
+
+# Flutter desktop generated files
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+
+# Native build output (tool/libconfig_check)
+tool/libconfig_check/build/
+
+# Packaging output
+dist/
+*.deb
+
+# IDEs and OS
+.idea/
+*.iml
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+
+# Local logs
+*.log
