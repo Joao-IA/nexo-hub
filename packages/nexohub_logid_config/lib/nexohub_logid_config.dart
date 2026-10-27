@@ -9,3 +9,6 @@ export 'src/libconfig/ast.dart';
 export 'src/libconfig/errors.dart';
 export 'src/libconfig/parser.dart' show parseLibconfig, parseLibconfigBytes;
 export 'src/libconfig/writer.dart' show writeLibconfig;
+export 'src/model/decode.dart';
+export 'src/model/encode.dart';
+export 'src/model/model.dart';

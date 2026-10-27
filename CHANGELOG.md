@@ -8,11 +8,16 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ## [Não lançado]
 
 ### Adicionado
+- `nexohub_logid_config` — modelo tipado do logid 0.3.5 (`LogidConfig`, perfis, ações, gestos) com
+  decodificação fiel às regras do logid, avisos (`DecodeIssue`) do que ele ignora/descarta e escrita
+  canônica; sua config original é reescrita sem nenhum aviso (teste golden).
+- `tool/logid_config_check`: compila o código de configuração original do logid 0.3.5 para testes
+  diferenciais do modelo; 0 divergências em 150 mil configs geradas.
 - Pacote `nexohub_logid_config` — camada libconfig: lexer, parser e writer fiéis ao libconfig 1.7.3
   (o mesmo do logid), com árvore tipada que não permite estruturas inválidas.
 - `tool/libconfig_check`: parser de referência em C++ usando o libconfig real, para testes
   diferenciais.
-- 45 testes (unitários, ida e volta e diferenciais) + fuzz configurável; 0 divergências em 400 mil
+- 75 testes (unitários, ida e volta, golden e diferenciais) + fuzz configurável; 0 divergências em 400 mil
   entradas geradas.
 - CI compila o parser de referência e exige que os testes diferenciais rodem.
 - Fundação do repositório: licença GPL-3.0, READMEs (EN/PT-BR), `.gitignore`, `.editorconfig`,
