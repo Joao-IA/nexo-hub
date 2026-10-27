@@ -8,6 +8,9 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ## [Não lançado]
 
 ### Adicionado
+- Relatório público `reports/logiops-0.3.5-findings.md` (em inglês) com os 6 achados no logiops 0.3.5
+  — causas, reprodução no hardware e textos prontos para reportar upstream — e seção correspondente nos
+  READMEs.
 - `nexohub_logid_config` — validador semântico: ~50 regras para o que o logid 0.3.5 aceita mas quebra,
   com gravidade (`error` bloqueia aplicar), caminho e parâmetros para a UI; `effectiveDpi` reproduz o
   arredondamento do logid. Sua config original: zero achados.

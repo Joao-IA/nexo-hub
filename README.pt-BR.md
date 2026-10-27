@@ -33,6 +33,23 @@ configurar mouses Logitech como o **MX Master 3S** sem nunca editar o `/etc/logi
 A documentação detalhada de projeto (arquitetura, registros de decisão, roteiros) é mantida de forma
 privada pelo mantenedor e não faz parte deste repositório.
 
+## Descobertas no logiops 0.3.5
+
+Construir o Nexo exigiu testar a fundo como o logid trata a configuração: o próprio código de
+decodificação do logid roda num teste diferencial contra o parser do Nexo, e cada comportamento
+arriscado foi reproduzido em hardware real (MX Master 3S via Bluetooth). Os achados críticos:
+
+| Configuração | O que acontece de verdade |
+|---|---|
+| `interval: 0` num gesto `OnInterval` | **o logid cai** (SIGFPE) no primeiro movimento |
+| `dpi: []`, mais DPIs que sensores, ou o erro de digitação `dpi: 1600L;` | **o logid desiste do dispositivo** — nenhuma configuração é aplicada, só `Device timed out` no log |
+| Qualquer ação `CycleDPI` | **Nunca muda o DPI** (bug conhecido, correção ainda não integrada) |
+| Nome de eixo inválido num gesto `Axis` | Comportamento indefinido no aviso do logid (imprime memória aleatória) |
+
+O validador do Nexo bloqueia todos esses casos. Relatório completo (em inglês), com passos para
+reproduzir, causas e textos prontos para reportar ao projeto original:
+[`reports/logiops-0.3.5-findings.md`](reports/logiops-0.3.5-findings.md).
+
 ## Roadmap
 
 1. **v1.0** — Módulo Logitech no Linux (logiops).

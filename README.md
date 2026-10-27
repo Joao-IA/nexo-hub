@@ -32,6 +32,22 @@ mice such as the **MX Master 3S** can be configured without ever editing `/etc/l
 Detailed design documentation (architecture, decision records, runbooks) is kept privately by the
 maintainer and is not part of this repository.
 
+## Findings in logiops 0.3.5
+
+Building Nexo meant testing logid's configuration handling exhaustively: logid's own config-decoding
+code runs in a differential test harness against Nexo's parser, and every risky behaviour was then
+reproduced on real hardware (MX Master 3S over Bluetooth). The critical findings:
+
+| Configuration | What really happens |
+|---|---|
+| `interval: 0` in an `OnInterval` gesture | **logid crashes** (SIGFPE) on the first movement |
+| `dpi: []`, more DPI values than sensors, or the typo `dpi: 1600L;` | **logid gives up on the device** — no setting is applied, only `Device timed out` in the log |
+| Any `CycleDPI` action | **Never changes the DPI** (known upstream bug, fix still unmerged) |
+| Unknown `axis` name in an `Axis` gesture | Undefined behaviour in logid's warning (random memory printed) |
+
+Nexo's validator blocks all of these. Full write-up, with reproduction steps, root causes and
+ready-to-paste upstream reports: [`reports/logiops-0.3.5-findings.md`](reports/logiops-0.3.5-findings.md).
+
 ## Roadmap
 
 1. **v1.0** — Logitech module on Linux (logiops).
