@@ -58,11 +58,13 @@ jobs:
       # Reference parser for the differential tests: the real libconfig++
       # (same 1.7.3 release logid links to on Ubuntu 24.04 and 26.04).
       # and logid 0.3.5's own config decoder (vendored, checksum-verified).
+      # libevdev2: nexohub_input_keys compares its tables with the real
+      # libevdev through dart:ffi (strict only on the generation system).
       - name: Build reference parsers (libconfig, logid decoder)
         if: hashFiles('tool/libconfig_check/main.cpp') != ''
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libconfig++-dev
+          sudo apt-get install -y -qq libconfig++-dev libevdev2
           tool/libconfig_check/build.sh
           tool/logid_config_check/build.sh
 

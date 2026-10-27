@@ -1,6 +1,8 @@
 // Semantic validation: things logid 0.3.5 accepts in the file but that break,
 // crash or silently do nothing at runtime. Each rule cites the logid code
 // that justifies it (commit 628ab937, src/logid/…).
+import 'package:nexohub_input_keys/nexohub_input_keys.dart';
+
 import '../model/model.dart';
 import 'capabilities.dart';
 
@@ -249,28 +251,19 @@ final class ValidationIssue {
   String toString() => '${severity.name} ${code.name} at $path: $message';
 }
 
-/// Resolves libevdev names to codes (`libevdev_event_code_from_name`).
-/// Provided by `nexohub_input_keys`.
-abstract interface class EvdevNames {
-  /// Code of an `EV_KEY` name (`KEY_*`, `BTN_*`), or null if unknown.
-  int? keyCode(String name);
-
-  /// Code of an `EV_REL` name (`REL_*`), or null if unknown.
-  int? relativeAxisCode(String name);
-}
-
-/// `KEY_CNT` and `REL_CNT` from linux/input-event-codes.h.
-const evdevKeyCount = 0x300;
+/// `KEY_CNT` from linux/input-event-codes.h.
+const evdevKeyCount = keyMax + 1;
 
 /// `REL_CNT` from linux/input-event-codes.h.
-const evdevRelativeAxisCount = 0x10;
+const evdevRelativeAxisCount = relMax + 1;
 
 /// Validates [config]. [devices] maps HID++ device names to what they
 /// support (unknown devices skip device-specific checks); [evdev] resolves
-/// key and axis names.
+/// key and axis names — use `EvdevCatalog.system()` to get exactly the
+/// names the installed libevdev (hence logid) accepts.
 List<ValidationIssue> validateLogidConfig(
   LogidConfig config, {
-  required EvdevNames evdev,
+  required EvdevCatalog evdev,
   Map<String, LogidDeviceCapabilities> devices = const {},
 }) {
   final v = _Validator(evdev);
@@ -284,7 +277,7 @@ List<ValidationIssue> validateLogidConfig(
 final class _Validator {
   _Validator(this.evdev);
 
-  final EvdevNames evdev;
+  final EvdevCatalog evdev;
   final issues = <ValidationIssue>[];
 
   void _add(

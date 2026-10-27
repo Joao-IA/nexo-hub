@@ -5,6 +5,10 @@
 /// differential tests in `test/`.
 library;
 
+// The validator takes an EvdevCatalog; re-exported for convenience.
+export 'package:nexohub_input_keys/nexohub_input_keys.dart'
+    show EvdevCatalog, LibevdevCatalog, TableEvdevCatalog;
+
 export 'src/libconfig/ast.dart';
 export 'src/libconfig/errors.dart';
 export 'src/libconfig/parser.dart' show parseLibconfig, parseLibconfigBytes;

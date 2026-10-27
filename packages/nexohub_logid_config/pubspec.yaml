@@ -9,6 +9,10 @@ resolution: workspace
 environment:
   sdk: ^3.13.0
 
+dependencies:
+  nexohub_input_keys:
+    path: ../nexohub_input_keys
+
 dev_dependencies:
   lints: ^6.1.0
   test: ^1.33.0

@@ -9,6 +9,7 @@ environment:
   sdk: ^3.13.0
 
 workspace:
+  - packages/nexohub_input_keys
   - packages/nexohub_logid_config
 
 dev_dependencies:

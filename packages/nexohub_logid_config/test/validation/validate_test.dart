@@ -6,7 +6,8 @@ import 'package:test/test.dart';
 import '../support/devices.dart';
 import '../support/model_generators.dart';
 
-const _evdev = FakeEvdevNames();
+/// The committed tables (hermetic); `EvdevCatalog.system()` is tested below.
+const _evdev = TableEvdevCatalog.instance;
 
 List<ValidationIssue> check(
   String deviceBody, {
@@ -362,8 +363,49 @@ void main() {
     });
   });
 
+  test("key names are checked against libevdev's real list", () {
+    // KEY_SCREENLOCK is in the kernel header but libevdev rejects it: logid
+    // would skip it silently ("Invalid keycode … skipping").
+    expect(
+      check(
+        button(
+          0xc3,
+          '{ type: "Keypress"; keys: ["KEY_LEFTCTRL", "KEY_SCREENLOCK"]; }',
+        ),
+      ).single.params['key'],
+      'KEY_SCREENLOCK',
+    );
+    expect(
+      check(
+        button(
+          0xc3,
+          '{ type: "Keypress"; keys: ["KEY_LEFTCTRL", "KEY_COFFEE"]; }',
+        ),
+      ),
+      isEmpty,
+    );
+  });
+
+  test(
+    "the user's config is clean with the system catalog (real libevdev)",
+    () {
+      final config = parseLogidConfig(
+        File('../../fixtures/logid/user-original-2026-10-27.cfg')
+            .readAsStringSync(),
+      ).config;
+      expect(
+        validateLogidConfig(
+          config,
+          evdev: EvdevCatalog.system(),
+          devices: const {'MX Master 3S': mxMaster3s},
+        ),
+        isEmpty,
+      );
+    },
+  );
+
   test('issues carry readable paths', () {
-    final issue = check(button(0xc3, '{ type: "Keypress"; keys: ["KEY_X"]; }'))
+    final issue = check(button(0xc3, '{ type: "Keypress"; keys: ["KEY_XX"]; }'))
         .single;
     expect(
       issue.path,

@@ -8,6 +8,18 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ## [Não lançado]
 
 ### Adicionado
+- Pacote `nexohub_input_keys`: catálogo de nomes de tecla/eixo aceitos pela libevdev do sistema (o
+  mesmo critério do logid) via `dart:ffi`, com tabelas geradas como alternativa; mapeamento tecla
+  física do Flutter → código evdev (217 teclas), cobrindo as teclas verificadas no spike S3. 20 nomes do
+  cabeçalho do kernel (ex.: `KEY_SCREENLOCK`) são recusados pela libevdev 1.13.6 e agora são acusados
+  pelo validador.
+- Gerador `packages/nexohub_input_keys/tool/generate.dart` e testes que garantem que as tabelas estão
+  em dia com o Flutter, a libevdev e os cabeçalhos do kernel.
+
+### Alterado
+- O validador do `nexohub_logid_config` usa `EvdevCatalog` (de `nexohub_input_keys`) no lugar da
+  interface provisória `EvdevNames`; recomenda-se `EvdevCatalog.system()`.
+- CI instala `libevdev2` para os testes de FFI.
 - Relatório público `reports/logiops-0.3.5-findings.md` (em inglês) com os 6 achados no logiops 0.3.5
   — causas, reprodução no hardware e textos prontos para reportar upstream — e seção correspondente nos
   READMEs.
