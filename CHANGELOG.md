@@ -8,6 +8,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 ## [Não lançado]
 
 ### Adicionado
+- `design/mouse3d/`: pipeline procedural no Blender 5.2.3 LTS que gera um modelo 3D **original** do MX Master
+  3S (sem marcas) e o contrato de imagens do palco do app: renders com fundo transparente e sombra de contato
+  nos temas claro e escuro, máscara de cada peça clicável, `hotspots.json` (âncoras verificadas por ray cast)
+  e cenas de capa. Inclui comparação da silhueta com fotos do mouse (IoU), portões automáticos (dimensões,
+  malhas fechadas, peças sem interpenetração, exposição), 20 testes que rodam dentro do Blender, scripts de
+  instalação/execução para Linux e Windows e `PROMPT-desktop.md` para a modelagem fina na GPU. O modelo atual
+  é provisório, ainda sem calibração com fotos.
 - Pacote `nexohub_input_keys`: catálogo de nomes de tecla/eixo aceitos pela libevdev do sistema (o
   mesmo critério do logid) via `dart:ffi`, com tabelas geradas como alternativa; mapeamento tecla
   física do Flutter → código evdev (217 teclas), cobrindo as teclas verificadas no spike S3. 20 nomes do
